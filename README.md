@@ -15,7 +15,27 @@ An AI-powered digital learning ecosystem developed by **Team Code Zen** for the 
 
 ## 📸 Platform Showcase
 
-### 🏠 Landing Page
+### 🌟 Hero Experience
+![Hero Banner](./screenshots/01-hero.png)
+Cinematic entry point showcasing the platform tagline and AI-powered learning companion.
+
+### 🎓 Universal Learning Levels
+![Every Level of Learning](./screenshots/02-learning-universe.png)
+Structured grade and curriculum level selection spanning Class 1 to advanced university research.
+
+### 🌌 3D Knowledge Universe & Solar System
+![Knowledge Universe 3D](./screenshots/03-course-solar-system.png)
+Interactive 3D orbital course navigation connecting domains from primary school to research frontiers.
+
+### 📚 Universe of Knowledge Domains
+![Knowledge Domains](./screenshots/04-knowledge-domains.png)
+Comprehensive domain catalog covering Mathematics, Science, AI/ML, Data Science, Cybersecurity, Web Dev, and Engineering.
+
+### 🧩 Core Platform Architecture Pillars
+![Platform Features](./screenshots/05-platform-features.png)
+Pillar overview highlighting the 3D Knowledge Universe, Unified Levels, AI Tutor, and Real-Time Analytics.
+
+### 🏠 Landing Page Overview
 ![Landing Page](./screenshots/landing.png)
 Modern entry point showcasing the platform's learning ecosystem, domain paths, and interactive 3D universe.
 
@@ -526,8 +546,13 @@ The **Smart Digital Learning Platform** addresses the digital divide and fragmen
 
 <div align="center">
 
-| Page | Preview |
+| Showcase View | Preview |
 |---|---|
+| **Hero Experience** | ![Hero Banner](./screenshots/01-hero.png) |
+| **Learning Levels** | ![Learning Levels](./screenshots/02-learning-universe.png) |
+| **3D Knowledge Universe** | ![3D Solar System](./screenshots/03-course-solar-system.png) |
+| **Knowledge Domains** | ![Knowledge Domains](./screenshots/04-knowledge-domains.png) |
+| **Platform Pillars** | ![Platform Pillars](./screenshots/05-platform-features.png) |
 | **Landing Page** | ![Landing Page](./screenshots/landing.png) |
 | **Student Dashboard** | ![Student Dashboard](./screenshots/dashboard.png) |
 | **AI Tutor** | ![AI Tutor](./screenshots/ai-tutor.png) |
