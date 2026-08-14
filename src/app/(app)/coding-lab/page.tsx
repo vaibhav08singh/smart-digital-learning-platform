@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import {
   Bug,
-  ClipboardCheck,
   FileSearch,
   GitCompareArrows,
   ListChecks,
@@ -13,7 +12,6 @@ import {
   Sparkles,
   Square,
   Terminal,
-  Trash2,
   Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,20 +20,15 @@ import { Badge } from "@/components/ui/badge";
 import { Markdown } from "@/components/ai-tutor/markdown";
 import { CodeEditor } from "@/components/coding-lab/code-editor";
 import {
-  addTestCase,
-  deleteTestCase,
   executeCode,
   getLanguage,
   getSnippet,
-  getTestCases,
   labLanguages,
-  runTestCases,
   saveSnippet,
-  type TestCase,
 } from "@/services/coding.service";
-import { recordCodingPractice, getTopicStatus } from "@/services/performance.service";
+import { getTopicStatus } from "@/services/performance.service";
 import { assistCode } from "@/services/ai-assist.service";
-import type { CodeExecutionResult, CodeTestResult, CodingAssistAction } from "@/types";
+import type { CodeExecutionResult, CodingAssistAction } from "@/types";
 import { cn } from "@/lib/utils";
 
 const AI_ACTIONS: { action: CodingAssistAction; label: string; icon: typeof Bug }[] = [
@@ -52,11 +45,6 @@ export default function CodingLabPage() {
   const [stdin, setStdin] = useState("5");
   const [result, setResult] = useState<CodeExecutionResult | null>(null);
   const [running, setRunning] = useState(false);
-  const [tests, setTests] = useState<TestCase[]>(() => getTestCases("python"));
-  const [testInput, setTestInput] = useState("");
-  const [testExpected, setTestExpected] = useState("");
-  const [testResults, setTestResults] = useState<CodeTestResult[] | null>(null);
-  const [runningTests, setRunningTests] = useState(false);
   const [aiAction, setAiAction] = useState<CodingAssistAction>("explain");
   const [targetLanguage, setTargetLanguage] = useState("java");
   const [aiResult, setAiResult] = useState("");
@@ -66,16 +54,12 @@ export default function CodingLabPage() {
   const abortRef = useRef<AbortController | null>(null);
   const [execError, setExecError] = useState<string | null>(null);
 
-  // Reset editor + tests when the language changes.
-  // Adjusting state during render is the React-recommended pattern
-  // for syncing state to a prop change without an effect.
+  // Reset editor when the language changes.
   const [prevLanguageId, setPrevLanguageId] = useState(languageId);
   if (prevLanguageId !== languageId) {
     setPrevLanguageId(languageId);
     setCode(getSnippet(languageId) ?? getLanguage(languageId).sample);
-    setTests(getTestCases(languageId));
     setResult(null);
-    setTestResults(null);
   }
 
   const topics = getTopicStatus();
@@ -111,20 +95,6 @@ export default function CodingLabPage() {
     }
   }
 
-  async function handleRunTests() {
-    setRunningTests(true);
-    setTestResults(null);
-    setExecError(null);
-    const results = await runTestCases(code, languageId, tests);
-    setTestResults(results);
-    setRunningTests(false);
-    if (topicId) {
-      for (const r of results) {
-        recordCodingPractice({ topicId, topicName: topicName || topicId, passed: r.passed, language: languageId });
-      }
-    }
-  }
-
   async function handleAi(action: CodingAssistAction) {
     if (!code.trim()) return;
     setAiLoading(true);
@@ -138,7 +108,6 @@ export default function CodingLabPage() {
         targetLanguage: action === "convert" ? getLanguage(targetLanguage).label : undefined,
         topic: topicName || undefined,
         currentError: result?.error ?? result?.stderr ?? undefined,
-        testCases: tests.map((t) => ({ input: t.input, expected: t.expected })),
       });
       setAiResult(data.content);
     } catch (err) {
@@ -283,128 +252,6 @@ export default function CodingLabPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Test cases */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="flex items-center gap-2">
-            <ClipboardCheck className="h-4 w-4 text-primary" /> Test cases
-          </CardTitle>
-          <Button size="sm" onClick={() => void handleRunTests()} disabled={runningTests || tests.length === 0}>
-            {runningTests ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-            {runningTests ? "Running…" : "Run all test cases"}
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-            <div>
-              <label htmlFor="tc-in" className="mb-1 block text-xs font-medium text-muted-foreground">
-                Input
-              </label>
-              <textarea
-                id="tc-in"
-                value={testInput}
-                onChange={(e) => setTestInput(e.target.value)}
-                rows={2}
-                placeholder="5"
-                className="w-full resize-none rounded-lg border bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-            </div>
-            <div>
-              <label htmlFor="tc-exp" className="mb-1 block text-xs font-medium text-muted-foreground">
-                Expected output
-              </label>
-              <textarea
-                id="tc-exp"
-                value={testExpected}
-                onChange={(e) => setTestExpected(e.target.value)}
-                rows={2}
-                placeholder="120"
-                className="w-full resize-none rounded-lg border bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-            </div>
-            <div className="flex items-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const next = addTestCase(languageId, testInput, testExpected);
-                  setTests(next);
-                  setTestInput("");
-                  setTestExpected("");
-                  setTestResults(null);
-                }}
-                disabled={!testExpected}
-              >
-                Add test case
-              </Button>
-            </div>
-          </div>
-
-          {tests.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              No test cases yet. Add input/expected-output pairs, then run them all.
-            </p>
-          )}
-
-          <div className="space-y-2">
-            {tests.map((test, i) => {
-              const res = testResults?.[i];
-              return (
-                <div key={test.id} className="grid grid-cols-[auto_1fr_1fr_auto] items-center gap-3 rounded-lg border bg-card px-3 py-2">
-                  <span className="text-xs font-semibold text-muted-foreground">TC {i + 1}</span>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-medium text-muted-foreground">Input</p>
-                    <pre className="truncate font-mono text-xs">{test.input || "(none)"}</pre>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-medium text-muted-foreground">Expected</p>
-                    <pre className="truncate font-mono text-xs">{test.expected || "(none)"}</pre>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {res &&
-                      (res.passed ? (
-                        <Badge variant="success">✓ Passed</Badge>
-                      ) : (
-                        <Badge variant="destructive">✗ Failed</Badge>
-                      ))}
-                    <button
-                      type="button"
-                      aria-label={`Delete test case ${i + 1}`}
-                      onClick={() => {
-                        const next = deleteTestCase(languageId, test.id);
-                        setTests(next);
-                        setTestResults(null);
-                      }}
-                      className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {testResults && (
-            <div className="rounded-lg border bg-card p-3">
-              <p className="mb-2 text-sm font-semibold">
-                {testResults.filter((r) => r.passed).length} / {testResults.length} passed
-              </p>
-              {testResults.filter((r) => !r.passed).map((r, i) => (
-                <div key={i} className="mt-2 grid gap-1 text-xs">
-                  <p className="font-medium text-destructive">Failed case</p>
-                  <p className="text-muted-foreground">
-                    Expected: <span className="font-mono">{r.expected || "(none)"}</span>
-                  </p>
-                  <p className="text-muted-foreground">
-                    Actual: <span className="font-mono">{r.actual || "(empty)"}</span>
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* AI assistant */}
       <Card>
