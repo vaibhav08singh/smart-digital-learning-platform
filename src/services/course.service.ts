@@ -43,7 +43,23 @@ export async function getCourses(filters: CourseFilters = {}): Promise<Course[]>
 
   if (filters.difficulty) result = result.filter((c) => c.difficulty === filters.difficulty);
   if (filters.domainId) result = result.filter((c) => c.domainId === filters.domainId);
-  if (filters.subjectId) result = result.filter((c) => c.subjectId === filters.subjectId);
+  if (filters.subjectId) {
+    const sId = filters.subjectId.toLowerCase();
+    const exact = result.filter(
+      (c) => c.subjectId === filters.subjectId || c.subjectId.toLowerCase() === sId,
+    );
+    if (exact.length > 0) {
+      result = exact;
+    } else {
+      const fuzzy = result.filter(
+        (c) =>
+          c.subjectName.toLowerCase().includes(sId) ||
+          c.title.toLowerCase().includes(sId) ||
+          c.tags.some((t) => t.toLowerCase().includes(sId)),
+      );
+      if (fuzzy.length > 0) result = fuzzy;
+    }
+  }
   if (filters.onlyEnrolled) result = result.filter((c) => profile.enrolledCourseIds?.includes(c.id));
   if (filters.onlyBookmarked)
     result = result.filter((c) => profile.bookmarkedCourseIds?.includes(c.id));

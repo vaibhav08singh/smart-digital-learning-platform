@@ -12,6 +12,7 @@ import { useStudentProfile } from "@/services/auth.service";
 import { toggleBookmark } from "@/services/student.service";
 import { educationLevels, domains } from "@/data/education";
 import { getSubject } from "@/data/subjects";
+import { getCsSubject } from "@/data/cs-subjects";
 import type { Course, Difficulty } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +67,9 @@ function CoursesContent() {
 
   const profile = useStudentProfile();
   const bookmarkedIds = profile.bookmarkedCourseIds;
-  const subjectName = subjectFilter ? getSubject(subjectFilter)?.name : undefined;
+  const subjectName = subjectFilter
+    ? getSubject(subjectFilter)?.name ?? getCsSubject(subjectFilter)?.name
+    : undefined;
 
   async function handleToggleBookmark(course: Course) {
     setLoading(true);

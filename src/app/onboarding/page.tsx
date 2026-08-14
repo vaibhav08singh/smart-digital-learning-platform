@@ -146,6 +146,7 @@ export default function OnboardingPage() {
                     }}
                     selected={isSelected}
                     onSelect={() => setLevelId(groupLevelId)}
+                    href={`/explore?level=${groupLevelId}`}
                   />
                 );
               })}

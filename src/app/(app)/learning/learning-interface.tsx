@@ -119,6 +119,14 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
     writeStore("codezen:completed-lessons", completed);
   }, [completed]);
 
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   if (!lesson || !topic) {
     return <ErrorState message="Lesson not found." onRetry={() => router.push("/explore")} />;
   }
@@ -134,6 +142,27 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
   const topicProgress = Math.round((completedCount / topicLessons.length) * 100);
 
   const effectiveLessonId = resolvedLessonId;
+
+  function handleToggleReadAloud() {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Text-to-speech is not supported in your browser.");
+      return;
+    }
+
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+    } else if (lesson) {
+      window.speechSynthesis.cancel();
+      const textToSpeak = `${lesson.title}. ${lesson.content}`;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = 0.95;
+      utterance.onend = () => setSpeaking(false);
+      utterance.onerror = () => setSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+      setSpeaking(true);
+    }
+  }
 
   function toggleComplete() {
     setCompleted((prev) => {
@@ -309,20 +338,44 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
           </div>
 
           {/* Title + actions */}
-          <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <Badge variant={isComplete ? "success" : "outline"}>
-                  {isComplete ? "Completed" : "In progress"}
+          <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1.5 flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant={isComplete ? "success" : "outline"}
+                  className={cn(isComplete && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-semibold")}
+                >
+                  {isComplete ? "✓ Completed" : "In progress"}
                 </Badge>
-                <Badge variant="outline">{topic.difficulty}</Badge>
+                <Badge variant="outline" className="capitalize">{topic.difficulty}</Badge>
+                {subject && <Badge variant="secondary" className="text-xs">{subject.name}</Badge>}
               </div>
-              <h1 className="text-2xl font-bold tracking-tight">{lesson.title}</h1>
-              <p className="mt-1 text-sm text-muted-foreground">{topic.name}</p>
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl break-words">
+                {lesson.title || topic.name}
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Topic: <span className="font-medium text-foreground">{topic.name}</span> • {lesson.durationMinutes} min lesson
+              </p>
             </div>
-            <Button onClick={toggleComplete} variant={isComplete ? "outline" : "default"}>
-              {isComplete ? <><Check className="h-4 w-4" /> Completed</> : <><CheckCircle2 className="h-4 w-4" /> Mark complete</>}
-            </Button>
+            <div className="flex items-center gap-2 shrink-0 pt-1 sm:pt-0">
+              <Button
+                onClick={toggleComplete}
+                variant={isComplete ? "outline" : "default"}
+                size="default"
+                className={cn(
+                  "gap-2 shadow-sm font-semibold transition-all",
+                  isComplete
+                    ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
+              >
+                {isComplete ? (
+                  <><Check className="h-4 w-4 text-emerald-500" /> Completed</>
+                ) : (
+                  <><CheckCircle2 className="h-4 w-4" /> Mark complete</>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Content */}
@@ -360,29 +413,69 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
           </div>
 
           {/* Transcript + captions */}
-          <div className="rounded-2xl border bg-card p-6">
-            <div className="mb-3 flex flex-wrap gap-2">
-              <Button variant={showCaptions ? "secondary" : "outline"} size="sm" onClick={() => setShowCaptions((v) => !v)}>
-                <Captions className="h-4 w-4" /> {showCaptions ? "Hide" : "Show"} captions
-              </Button>
-              <Button variant={showTranscript ? "secondary" : "outline"} size="sm" onClick={() => setShowTranscript((v) => !v)}>
-                <FileText className="h-4 w-4" /> {showTranscript ? "Hide" : "Show"} transcript
+          <div className="rounded-2xl border bg-card p-6 space-y-4">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Button
+                variant={showCaptions ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setShowCaptions((v) => !v)}
+                className={cn(showCaptions && "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-800")}
+              >
+                <Captions className="h-4 w-4" /> {showCaptions ? "Hide captions" : "Show captions"}
               </Button>
               <Button
-                variant="outline"
+                variant={showTranscript ? "secondary" : "outline"}
                 size="sm"
-                onClick={() => setSpeaking((v) => !v)}
+                onClick={() => setShowTranscript((v) => !v)}
+                className={cn(showTranscript && "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-300 dark:border-indigo-800")}
+              >
+                <FileText className="h-4 w-4" /> {showTranscript ? "Hide transcript" : "Show transcript"}
+              </Button>
+              <Button
+                variant={speaking ? "default" : "outline"}
+                size="sm"
+                onClick={handleToggleReadAloud}
                 aria-pressed={speaking}
+                className={cn(speaking && "bg-rose-500 text-white hover:bg-rose-600 animate-pulse")}
               >
                 <Volume2 className="h-4 w-4" /> {speaking ? "Stop" : "Read aloud"}
               </Button>
             </div>
-            {showTranscript && (
-              <div className="rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
-                {lesson.transcript ?? "This is a sample transcript. In a live course this area would contain the full spoken script of the lesson, synced to the video timeline."}
+
+            {/* Closed Captions Display */}
+            {showCaptions && (
+              <div className="rounded-xl border border-purple-500/30 bg-purple-500/5 p-4 text-sm text-foreground transition-all">
+                <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-purple-600 dark:text-purple-400">
+                  <span className="flex items-center gap-1.5"><Captions className="h-3.5 w-3.5" /> Closed Captions Banner</span>
+                  <span className="text-[10px] uppercase tracking-wider bg-purple-500/15 px-2 py-0.5 rounded-md">Live Subtitles</span>
+                </div>
+                <p className="leading-relaxed text-foreground font-medium">
+                  {lesson.captions ?? `"[00:15] Welcome to ${lesson.title}. In this lesson we explore core principles: ${lesson.content.slice(0, 160)}..."`}
+                </p>
               </div>
             )}
-            <p className="mt-2 text-xs text-muted-foreground">
+
+            {/* Full Spoken Transcript Display */}
+            {showTranscript && (
+              <div className="rounded-xl border bg-muted/40 p-4 text-sm space-y-3 transition-all">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><FileText className="h-3.5 w-3.5 text-primary" /> Full Lesson Transcript & Notes</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-[11px] px-2 text-primary"
+                    onClick={() => navigator.clipboard.writeText(lesson.transcript ?? `${lesson.title}\n\n${lesson.content}`)}
+                  >
+                    <Copy className="mr-1 h-3 w-3" /> Copy transcript
+                  </Button>
+                </div>
+                <div className="rounded-lg bg-card p-3 border text-muted-foreground leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto text-xs">
+                  {lesson.transcript ?? `[00:00] Overview & Introduction to ${lesson.title}\n[00:45] Core Concepts & Definitions\n${lesson.content}\n\n[04:30] Key Takeaway: Revisit practice questions to solidify your understanding of this topic.`}
+                </div>
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground">
               Accessibility tip: use the Read aloud button for text-to-speech, captions and
               transcript for video content.
             </p>
@@ -485,19 +578,11 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
           </nav>
 
           <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => {
-              if ("speechSynthesis" in window && !speaking) {
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance(lesson.content));
-                setSpeaking(true);
-              } else if ("speechSynthesis" in window) {
-                window.speechSynthesis.cancel();
-                setSpeaking(false);
-              }
-            }}
+            variant={speaking ? "default" : "outline"}
+            className={cn("w-full gap-2", speaking && "bg-rose-500 text-white hover:bg-rose-600 animate-pulse")}
+            onClick={handleToggleReadAloud}
           >
-            <Mic className="h-4 w-4" /> Read aloud
+            <Mic className="h-4 w-4" /> {speaking ? "Stop reading" : "Read aloud"}
           </Button>
         </aside>
       </div>

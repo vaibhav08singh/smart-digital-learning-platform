@@ -248,7 +248,20 @@ function toPublic(user: StoredUser): AuthUser {
 
 export function getStudentProfile(): StudentProfile {
   const profile = readStore<StudentProfile | null>("codezen:profile", null);
-  if (profile) return profile;
+  if (profile) {
+    if (profile.institution === "National Institute of Technology" || profile.classYear === "2nd Year") {
+      const updated: StudentProfile = {
+        ...profile,
+        classYear: profile.classYear === "2nd Year" ? "3rd Year" : profile.classYear,
+        institution: profile.institution === "National Institute of Technology"
+          ? "State Institute of Engineering and Technology Nilokheri"
+          : profile.institution,
+      };
+      writeStore("codezen:profile", updated);
+      return updated;
+    }
+    return profile;
+  }
   writeStore("codezen:profile", defaultStudent);
   return defaultStudent;
 }

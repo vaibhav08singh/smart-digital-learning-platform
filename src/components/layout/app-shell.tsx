@@ -9,7 +9,7 @@ import {
   Brain,
   CalendarDays,
   Compass,
-  Home,
+  GraduationCap,
   LayoutDashboard,
   Library,
   Settings,
@@ -52,15 +52,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const profile = useStudentProfile();
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
-      <div className="flex items-center justify-between px-2">
+    <div className="flex h-full min-h-0 flex-col gap-3 p-4">
+      <div className="flex shrink-0 items-center justify-between px-2">
         <Logo />
       </div>
 
       <Link
         href="/profile"
         onClick={onNavigate}
-        className="flex items-center gap-3 rounded-xl border bg-card p-3 transition-colors hover:border-primary/50 hover:bg-accent/50"
+        className="flex shrink-0 items-center gap-3 rounded-xl border bg-card p-3 transition-colors hover:border-primary/50 hover:bg-accent/50"
         title="Go to profile"
       >
         <UserAvatar avatarId={profile.avatarId} name={profile.name} className="h-9 w-9" />
@@ -72,8 +72,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </Link>
 
-      <nav className="flex flex-1 flex-col gap-1" aria-label="Sidebar">
-        <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <nav className="flex flex-1 min-h-0 flex-col gap-1 overflow-y-auto pr-1" aria-label="Sidebar">
+        <p className="px-3 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Learn
         </p>
         {mainNav.map((item) => {
@@ -96,7 +96,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
           );
         })}
-        <p className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           AI Tools
         </p>
         {learnNav.map((item) => {
@@ -119,7 +119,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
           );
         })}
-        <p className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Account
         </p>
         {accountNav.map((item) => {
@@ -144,13 +144,16 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
 
-      <Link
-        href="/onboarding"
-        className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground hover:border-primary hover:text-primary"
-      >
-        <Home className="h-3.5 w-3.5" />
-        Change education level
-      </Link>
+      <div className="shrink-0 pt-2 border-t border-border/50">
+        <Link
+          href="/onboarding"
+          onClick={onNavigate}
+          className="flex items-center gap-2.5 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-medium text-muted-foreground transition-all hover:border-primary hover:bg-primary/10 hover:text-primary"
+        >
+          <GraduationCap className="h-4 w-4 text-primary shrink-0" />
+          <span>Change education level</span>
+        </Link>
+      </div>
     </div>
   );
 }

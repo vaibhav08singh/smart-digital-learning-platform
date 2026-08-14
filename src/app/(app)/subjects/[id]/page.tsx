@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookMarked, Bot, ExternalLink, GraduationCap, ListChecks, Sparkles } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, Bot, ExternalLink, GraduationCap, ListChecks, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -94,24 +94,53 @@ export default async function SubjectPage({ params }: PageProps<"/subjects/[id]"
 
         <div className="space-y-6">
           <section className="rounded-2xl border bg-card p-6">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold tracking-tight">
-              <GraduationCap className="h-5 w-5 text-primary" /> Learning path
-            </h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+                <GraduationCap className="h-5 w-5 text-primary" /> Learning path
+              </h2>
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                5 Levels
+              </span>
+            </div>
             <ol className="space-y-3">
-              {path.map((level) => (
-                <li key={level.level} className="rounded-xl border bg-muted/40 p-3">
-                  <p className="mb-1 text-sm font-semibold">
-                    Level {level.level} — {level.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{level.topics.join(" · ")}</p>
-                </li>
-              ))}
+              {path.map((level) => {
+                const promptText = `Teach me ${subject.name} Level ${level.level} — ${level.title}: ${level.topics.join(", ")}`;
+                return (
+                  <li key={level.level} className="group rounded-xl border bg-card/60 p-3.5 transition-all hover:border-primary/50 hover:bg-primary/5 hover:shadow-md">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                        Level {level.level} — {level.title}
+                      </p>
+                      <div className="flex items-center gap-1.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                        <Button asChild variant="outline" size="sm" className="h-7 text-xs px-2.5 gap-1">
+                          <Link href={`/courses?subject=${encodeURIComponent(subject.id)}`}>
+                            <BookOpen className="h-3 w-3 text-indigo-500" /> Course
+                          </Link>
+                        </Button>
+                        <Button asChild variant="default" size="sm" className="h-7 text-xs px-2.5 gap-1">
+                          <Link href={`/ai-tutor?prompt=${encodeURIComponent(promptText)}`}>
+                            <Bot className="h-3 w-3" /> AI Tutor
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{level.topics.join(" · ")}</p>
+                  </li>
+                );
+              })}
             </ol>
-            <Button asChild variant="outline" size="sm" className="mt-4 w-full">
-              <Link href={`/ai-tutor?prompt=${encodeURIComponent(`Teach me ${subject.name} from scratch`)}`}>
-                <Bot className="h-4 w-4" /> Start Level 1 with the AI tutor
-              </Link>
-            </Button>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Button asChild size="default" className="gap-2 shadow-md">
+                <Link href={`/ai-tutor?prompt=${encodeURIComponent(`Teach me ${subject.name} Level 1 — Fundamentals from scratch`)}`}>
+                  <Bot className="h-4 w-4" /> Start Level 1 with AI
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="default" className="gap-2">
+                <Link href={`/courses?subject=${encodeURIComponent(subject.id)}`}>
+                  <BookOpen className="h-4 w-4 text-indigo-500" /> Open Course & Modules
+                </Link>
+              </Button>
+            </div>
           </section>
 
           {related.length > 0 && (
