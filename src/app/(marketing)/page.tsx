@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import {
@@ -18,18 +18,20 @@ import { KnowledgeUniverse } from "@/components/3d/knowledge-universe";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MagneticCTA } from "@/components/ui/magnetic-cta";
+import { LiveDemoDialog } from "@/components/demo/live-demo-dialog";
 import { domains } from "@/data/education";
+import { cn } from "@/lib/utils";
 
 const journey = [
-  "Class 1",
-  "Class 5",
-  "Class 10",
-  "Class 12",
-  "Undergrad",
-  "BTech",
-  "MTech",
-  "Advanced",
-  "Research",
+  { label: "Class 1", levelId: "class-1" },
+  { label: "Class 5", levelId: "class-5" },
+  { label: "Class 10", levelId: "class-10" },
+  { label: "Class 12", levelId: "class-12" },
+  { label: "Undergrad", levelId: "undergraduate" },
+  { label: "BTech", levelId: "btech" },
+  { label: "MTech", levelId: "mtech" },
+  { label: "Advanced", levelId: "advanced" },
+  { label: "Research", levelId: "phd" },
 ];
 
 const features = [
@@ -77,6 +79,7 @@ function ScrollProgressIndicator() {
 }
 
 export default function HomePage() {
+  const [demoOpen, setDemoOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: heroScrollProgress } = useScroll({
     target: heroRef,
@@ -207,21 +210,23 @@ export default function HomePage() {
       <motion.section {...cinematicSection} className="border-y bg-card/40">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <p className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            From primary school to the research frontier
+            From primary school to the research frontier — click any level to explore
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             {journey.map((step, i) => (
-              <div key={step} className="flex items-center gap-2">
+              <div key={step.levelId} className="flex items-center gap-2">
                 {i > 0 && <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/60" />}
-                <span
-                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-transform hover:scale-105 ${
+                <Link
+                  href={`/explore?level=${step.levelId}`}
+                  className={cn(
+                    "rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-110 hover:border-primary hover:bg-primary/10 hover:text-primary hover:shadow-md cursor-pointer",
                     i >= journey.length - 2
-                      ? "border-primary/40 bg-primary/10 text-primary"
-                      : "text-muted-foreground"
-                  }`}
+                      ? "border-primary/40 bg-primary/10 text-primary shadow-sm"
+                      : "border-border/60 bg-background/60 text-muted-foreground hover:text-foreground"
+                  )}
                 >
-                  {step}
-                </span>
+                  {step.label}
+                </Link>
               </div>
             ))}
           </div>
@@ -317,11 +322,11 @@ export default function HomePage() {
               </Link>
             </Button>
             <Button
-              asChild
               size="lg"
-              className="border border-white/30 bg-white/10 text-white hover:bg-white/20"
+              onClick={() => setDemoOpen(true)}
+              className="border border-white/30 bg-white/10 text-white hover:bg-white/20 font-semibold shadow-lg"
             >
-              <Link href="/dashboard">View live demo</Link>
+              View live demo
             </Button>
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/70">
@@ -337,6 +342,8 @@ export default function HomePage() {
           </div>
         </motion.div>
       </section>
+
+      <LiveDemoDialog open={demoOpen} onOpenChange={setDemoOpen} />
     </div>
   );
 }

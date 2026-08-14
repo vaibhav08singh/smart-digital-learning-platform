@@ -55,6 +55,10 @@ Integrated multi-language programming environment featuring live code execution,
 ![Resource Hub](./screenshots/resource-hub.png)
 Educational video discovery powered by server-side YouTube Data API integration.
 
+### 👑 Admin Control Panel
+![Admin Control Panel](./screenshots/admin.png)
+Enterprise-grade administration workspace featuring real-time user metrics, account directory, role management, and JSON data export.
+
 ---
 
 ## 🌟 About the Project
@@ -185,6 +189,21 @@ Educational video discovery system integrated directly into the platform.
 ### 🧠 Learning Path
 Connects courses, subjects, resources, coding labs, and quizzes into a guided learning roadmap.
 
+### 👑 Admin Control Panel & Superuser Credentials
+![Admin Control Panel](./screenshots/admin.png)
+
+An enterprise-grade administration workspace (`/admin`) for platform management and user oversight.
+- 🔑 **Admin Superuser Credentials**:
+  - **Email ID**: `xxxxxxxxx@gmail.com`
+  - **Password**: `000000000`
+  - **Portal Route**: `/admin`
+- 👥 **User Account Directory**: Real-time listing of all registered users with role badges, academic levels, institutions, and registration timestamps.
+- 📊 **Platform Health Metrics**: Key performance counters for total registered profiles, active students, BTech engineering learners, and admin counts.
+- 🔍 **Search & Role Filter**: Filter users by role (`All`, `Admins`, `Students`) or search by student name, email address, or college.
+- 👁️ **User Details Modal**: Detailed profile inspection modal breaking down user metadata.
+- 📥 **Data Export**: 1-Click JSON data export of all registered user account records.
+- 👑 **Superadmin Protection**: Protected account management preventing accidental deletion of the primary superadmin.
+
 ---
 
 ## 🏗️ System Architecture
@@ -251,6 +270,7 @@ Built with modern React and Next.js, featuring a fluid UI and interactive 3D ele
 
 ### Key Frontend Views (`src/app/(app)/`)
 - `/dashboard`: Unified student command center
+- `/admin`: Superadmin control panel & user account directory
 - `/ai-tutor`: Conversational AI tutor interface
 - `/coding-lab`: Multi-language code editor & execution workspace
 - `/courses` & `/subjects`: Curriculum catalog and lesson player
@@ -558,6 +578,7 @@ The **Smart Digital Learning Platform** addresses the digital divide and fragmen
 | **AI Tutor** | ![AI Tutor](./screenshots/ai-tutor.png) |
 | **Coding Lab** | ![Coding Lab](./screenshots/coding-lab.png) |
 | **Resource Hub** | ![Resource Hub](./screenshots/resource-hub.png) |
+| **Admin Control Panel** | ![Admin Control Panel](./screenshots/admin.png) |
 
 </div>
 

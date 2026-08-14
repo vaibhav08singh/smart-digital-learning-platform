@@ -7,6 +7,7 @@ import { Loader2, Lock, Mail, Sparkles, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { register, loginWithGoogle } from "@/services/auth.service";
+import { GoogleAuthDialog } from "@/components/demo/google-auth-dialog";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleDialogOpen, setGoogleDialogOpen] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,24 +46,23 @@ export default function RegisterPage() {
     }
   }
 
-  async function handleGoogleSignIn() {
+  function handleGoogleSignIn() {
     if (loading || googleLoading) return;
     setError("");
+    setGoogleDialogOpen(true);
+  }
+
+  async function handleGoogleDialogSuccess(account: { name: string; email: string }) {
     setGoogleLoading(true);
-    try {
-      await loginWithGoogle();
-      router.push("/onboarding");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed.");
-      setGoogleLoading(false);
-    }
+    await loginWithGoogle(account);
+    router.push("/onboarding");
   }
 
   return (
-    <div className="mx-auto flex min-h-full max-w-md flex-col justify-center py-12">
-      <div className="rounded-3xl border bg-card p-8 shadow-sm">
+    <div className="mx-auto flex min-h-full max-w-md flex-col justify-center py-12 px-4">
+      <div className="rounded-3xl border border-border/80 bg-card/90 p-8 shadow-2xl backdrop-blur-xl">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-md">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-white shadow-lg">
             <Sparkles className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
@@ -80,7 +81,7 @@ export default function RegisterPage() {
           {googleLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <svg className="h-4 w-4" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -115,25 +116,25 @@ export default function RegisterPage() {
               Full name
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 id="name"
                 autoComplete="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-9"
-                placeholder="Ada Lovelace"
+                className="pl-9 pr-10"
+                placeholder="Vaibhav Singh"
               />
             </div>
           </div>
 
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-              Email
+              Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 id="email"
                 type="email"
@@ -141,7 +142,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-9"
+                className="pl-9 pr-10"
                 placeholder="you@example.com"
               />
             </div>
@@ -152,7 +153,7 @@ export default function RegisterPage() {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 id="password"
                 type="password"
@@ -161,7 +162,7 @@ export default function RegisterPage() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-9"
+                className="pl-9 pr-10"
                 placeholder="At least 6 characters"
               />
             </div>
@@ -191,6 +192,12 @@ export default function RegisterPage() {
           </Link>
         </p>
       </div>
+
+      <GoogleAuthDialog
+        open={googleDialogOpen}
+        onOpenChange={setGoogleDialogOpen}
+        onSuccess={handleGoogleDialogSuccess}
+      />
     </div>
   );
 }

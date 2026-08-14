@@ -13,7 +13,7 @@ import { TopicCard } from "@/components/knowledge/topic-card";
 import { LessonCard } from "@/components/knowledge/lesson-card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/state";
-import { educationLevels, programsForLevel, getProgram, getDomain, domains } from "@/data/education";
+import { educationLevels, getEducationLevel, programsForLevel, getProgram, getDomain, domains } from "@/data/education";
 import { getSubject, getChapter, getTopic, subjectsForDomain, subjectsForLevel } from "@/data/subjects";
 import { groupsByStage } from "@/lib/education-groups";
 import type { EducationStage } from "@/types";
@@ -169,10 +169,10 @@ function ExplorerContent() {
 
   // LEVEL → programs
   if (levelId) {
-    const level = educationLevels.find((l) => l.id === levelId);
+    const level = getEducationLevel(levelId);
     if (!level) return <EmptyState title="Level not found" />;
-    const levelPrograms = programsForLevel(levelId);
-    const levelSubjects = subjectsForLevel(levelId);
+    const levelPrograms = programsForLevel(level.id);
+    const levelSubjects = subjectsForLevel(level.id);
     return (
       <section>
         <CrumbTrail items={[rootLink, <span key="l" className="font-medium text-foreground">{level.name}</span>]} />

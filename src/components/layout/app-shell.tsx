@@ -22,8 +22,9 @@ import { Logo } from "@/components/layout/logo";
 import { AccessibilityControls } from "@/components/layout/accessibility";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { Button } from "@/components/ui/button";
-import { useStudentProfile } from "@/services/auth.service";
+import { useStudentProfile, isAdminUser } from "@/services/auth.service";
 import { levelLabel } from "@/services/student.service";
+import { ShieldCheck } from "lucide-react";
 
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -50,6 +51,7 @@ const accountNav = [
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const profile = useStudentProfile();
+  const isAdmin = isAdminUser(profile.email);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 p-4">
@@ -142,6 +144,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
           );
         })}
+        {isAdmin && (
+          <Link
+            href="/admin"
+            onClick={onNavigate}
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold transition-colors border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 my-1",
+              pathname === "/admin" && "bg-amber-500/25 text-amber-200"
+            )}
+          >
+            <ShieldCheck className="h-4 w-4 text-amber-400" />
+            👑 Admin Portal
+          </Link>
+        )}
       </nav>
 
       <div className="shrink-0 pt-2 border-t border-border/50">

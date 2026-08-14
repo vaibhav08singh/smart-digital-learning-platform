@@ -48,11 +48,31 @@ export function SiteFooter() {
           <div>
             <p className="mb-3 text-sm font-semibold">The journey</p>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Class 1 → 12</li>
-              <li>Undergraduate</li>
-              <li>BTech / BE</li>
-              <li>MTech / ME</li>
-              <li>Advanced & Research</li>
+              <li>
+                <Link href="/explore?level=class-10" className="hover:text-foreground hover:underline transition-colors">
+                  Class 1 → 12
+                </Link>
+              </li>
+              <li>
+                <Link href="/explore?level=undergraduate" className="hover:text-foreground hover:underline transition-colors">
+                  Undergraduate
+                </Link>
+              </li>
+              <li>
+                <Link href="/explore?level=btech" className="hover:text-foreground hover:underline transition-colors">
+                  BTech / BE
+                </Link>
+              </li>
+              <li>
+                <Link href="/explore?level=mtech" className="hover:text-foreground hover:underline transition-colors">
+                  MTech / ME
+                </Link>
+              </li>
+              <li>
+                <Link href="/explore?level=research" className="hover:text-foreground hover:underline transition-colors">
+                  Advanced & Research
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

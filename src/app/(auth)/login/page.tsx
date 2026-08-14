@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bot, Loader2, Lock, Mail, Sparkles } from "lucide-react";
+import { Bot, Loader2, Lock, Mail, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { login, loginWithGoogle } from "@/services/auth.service";
+import { login, loginDemoUser, loginWithGoogle } from "@/services/auth.service";
+import { GoogleAuthDialog } from "@/components/demo/google-auth-dialog";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,10 +16,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [googleDialogOpen, setGoogleDialogOpen] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (loading || googleLoading) return;
+    if (loading || googleLoading || demoLoading) return;
     if (!email.trim() || !email.includes("@")) {
       setError("Please enter a valid email address.");
       return;
@@ -31,37 +34,81 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      await login({ email, password });
-      router.push("/dashboard");
+      const user = await login({ email, password });
+      if (user.role === "admin" || user.email.toLowerCase() === "vaibhav4866singh@gmail.com") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed.");
       setLoading(false);
     }
   }
 
-  async function handleGoogleSignIn() {
-    if (loading || googleLoading) return;
+  function handleGoogleSignIn() {
+    if (loading || googleLoading || demoLoading) return;
     setError("");
+    setGoogleDialogOpen(true);
+  }
+
+  async function handleGoogleDialogSuccess(account: { name: string; email: string }) {
     setGoogleLoading(true);
+    await loginWithGoogle(account);
+    router.push("/dashboard");
+  }
+
+  async function handleDemoSignIn() {
+    if (loading || googleLoading || demoLoading) return;
+    setError("");
+    setDemoLoading(true);
     try {
-      await loginWithGoogle();
+      await loginDemoUser();
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed.");
-      setGoogleLoading(false);
+      setError(err instanceof Error ? err.message : "Demo login failed.");
+      setDemoLoading(false);
     }
   }
 
+  function fillDemoCredentials() {
+    setEmail("demo@codezen.ai");
+    setPassword("password123");
+    setError("");
+  }
+
+  function fillAdminCredentials() {
+    setEmail("vaibhav4866singh@gmail.com");
+    setPassword("12345678");
+    setError("");
+  }
+
   return (
-    <div className="mx-auto flex min-h-full max-w-md flex-col justify-center py-12">
-      <div className="rounded-3xl border bg-card p-8 shadow-sm">
+    <div className="mx-auto flex min-h-full max-w-md flex-col justify-center py-12 px-4">
+      <div className="rounded-3xl border border-border/80 bg-card/90 p-8 shadow-2xl backdrop-blur-xl">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-md">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-white shadow-lg">
             <Bot className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
           <p className="mt-1 text-sm text-muted-foreground">Log in to continue your learning journey.</p>
         </div>
+
+        {/* Quick Demo Access */}
+        <Button
+          type="button"
+          size="lg"
+          className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 font-semibold text-white shadow-md hover:from-violet-500 hover:to-indigo-500 transition-all"
+          onClick={handleDemoSignIn}
+          disabled={loading || googleLoading || demoLoading}
+        >
+          {demoLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Zap className="h-4 w-4 fill-white/20 text-white" />
+          )}
+          ⚡ Quick Demo Login (1-Click Access)
+        </Button>
 
         {/* Google OAuth Button */}
         <Button
@@ -70,12 +117,12 @@ export default function LoginPage() {
           size="lg"
           className="mb-5 flex w-full items-center justify-center gap-2.5 rounded-xl border bg-background font-medium hover:bg-muted"
           onClick={handleGoogleSignIn}
-          disabled={loading || googleLoading}
+          disabled={loading || googleLoading || demoLoading}
         >
           {googleLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <svg className="h-4 w-4" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -106,11 +153,30 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-              Email
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium">
+                Email
+              </label>
+              <div className="flex items-center gap-2 text-[11px] font-medium">
+                <button
+                  type="button"
+                  onClick={fillAdminCredentials}
+                  className="text-amber-400 hover:underline flex items-center gap-0.5"
+                >
+                  👑 Admin Fill
+                </button>
+                <span className="text-muted-foreground">·</span>
+                <button
+                  type="button"
+                  onClick={fillDemoCredentials}
+                  className="text-primary hover:underline"
+                >
+                  Demo Fill
+                </button>
+              </div>
+            </div>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 id="email"
                 type="email"
@@ -118,7 +184,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-9"
+                className="pl-9 pr-10"
                 placeholder="you@example.com"
               />
             </div>
@@ -129,7 +195,7 @@ export default function LoginPage() {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 id="password"
                 type="password"
@@ -137,7 +203,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-9"
+                className="pl-9 pr-10"
                 placeholder="••••••••"
               />
             </div>
@@ -149,7 +215,7 @@ export default function LoginPage() {
             </p>
           )}
 
-          <Button type="submit" className="w-full" size="lg" disabled={loading || googleLoading}>
+          <Button type="submit" className="w-full" size="lg" disabled={loading || googleLoading || demoLoading}>
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" /> Logging in…
@@ -160,12 +226,6 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="mt-5 rounded-xl border bg-muted/50 p-3 text-center text-xs text-muted-foreground">
-          <p className="flex items-center justify-center gap-1">
-            <Sparkles className="h-3 w-3 text-primary" /> Powered by Firebase Authentication.
-          </p>
-        </div>
-
         <p className="mt-6 text-center text-sm text-muted-foreground">
           No account yet?{" "}
           <Link href="/register" className="font-medium text-primary hover:underline">
@@ -173,6 +233,12 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+
+      <GoogleAuthDialog
+        open={googleDialogOpen}
+        onOpenChange={setGoogleDialogOpen}
+        onSuccess={handleGoogleDialogSuccess}
+      />
     </div>
   );
 }

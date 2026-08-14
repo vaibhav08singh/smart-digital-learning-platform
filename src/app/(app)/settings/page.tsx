@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { AvatarPicker } from "@/components/profile/avatar-picker";
-import { getStudentProfile, saveStudentProfile, logout, updateAccountEmail } from "@/services/auth.service";
+import { saveStudentProfile, useStudentProfile, logout, updateAccountEmail } from "@/services/auth.service";
 import { levelLabel } from "@/services/student.service";
 import { educationLevels, streams } from "@/data/education";
 import { isValidAvatarId } from "@/data/avatars";
@@ -30,18 +30,19 @@ const CLASS_YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Class 9", 
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [profile] = useState<StudentProfile | null>(() => getStudentProfile());
-  const [name, setName] = useState(profile?.name ?? "");
-  const [email, setEmail] = useState(profile?.email ?? "");
+  const profile = useStudentProfile();
+
+  const [name, setName] = useState(profile.name);
+  const [email, setEmail] = useState(profile.email);
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [avatarId, setAvatarId] = useState(profile?.avatarId ?? "student-orange");
-  const [classYear, setClassYear] = useState(profile?.classYear ?? "");
-  const [branch, setBranch] = useState(profile?.branch ?? "");
-  const [institution, setInstitution] = useState(profile?.institution ?? "");
-  const [institutionUrl, setInstitutionUrl] = useState(profile?.institutionUrl ?? "");
-  const [dailyGoal, setDailyGoal] = useState(profile?.dailyGoalMinutes ?? 30);
-  const [goals, setGoals] = useState<string[]>(profile?.goals ?? []);
-  const [levelId, setLevelId] = useState<string>(profile?.levelId ?? "ug");
+  const [avatarId, setAvatarId] = useState(profile.avatarId);
+  const [classYear, setClassYear] = useState(profile.classYear);
+  const [branch, setBranch] = useState(profile.branch);
+  const [institution, setInstitution] = useState(profile.institution);
+  const [institutionUrl, setInstitutionUrl] = useState(profile.institutionUrl ?? "");
+  const [dailyGoal, setDailyGoal] = useState(profile.dailyGoalMinutes);
+  const [goals, setGoals] = useState<string[]>(profile.goals);
+  const [levelId, setLevelId] = useState<string>(profile.levelId);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -54,33 +55,38 @@ export default function SettingsPage() {
   }
 
   async function handleSave() {
-    if (!profile) return;
     setSaving(true);
     setSaved(false);
-    try {
-      await updateAccountEmail(email);
-      setEmailError(null);
-    } catch (err) {
-      setEmailError(err instanceof Error ? err.message : String(err));
-      setSaving(false);
-      return;
+    setEmailError(null);
+
+    const cleanEmail = email.trim();
+    if (cleanEmail && cleanEmail.toLowerCase() !== profile.email.toLowerCase()) {
+      try {
+        await updateAccountEmail(cleanEmail);
+      } catch (err) {
+        setEmailError(err instanceof Error ? err.message : String(err));
+        setSaving(false);
+        return;
+      }
     }
+
     saveStudentProfile({
       ...profile,
-      email,
+      email: cleanEmail || profile.email,
       name: name.trim() || profile.name,
       avatarId: isValidAvatarId(avatarId) ? avatarId : profile.avatarId,
-      classYear,
-      branch,
-      institution,
+      classYear: classYear || profile.classYear,
+      branch: branch || profile.branch,
+      institution: institution || profile.institution,
       institutionUrl,
       dailyGoalMinutes: dailyGoal,
       goals,
-      levelId: levelId as StudentProfile["levelId"],
+      levelId: (levelId || profile.levelId) as StudentProfile["levelId"],
     });
+
     setSaving(false);
     setSaved(true);
-    window.setTimeout(() => setSaved(false), 2000);
+    window.setTimeout(() => setSaved(false), 2500);
   }
 
   async function handleLogout() {
@@ -341,7 +347,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <AvatarPicker open={pickerOpen} onOpenChange={setPickerOpen} value={avatarId} onSelect={setAvatarId} />
+      <AvatarPicker open={pickerOpen} onOpenChange={setPickerOpen} value={avatarId || "student-orange"} onSelect={setAvatarId} />
     </div>
   );
 }

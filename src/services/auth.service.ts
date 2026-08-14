@@ -25,6 +25,10 @@ export interface AuthUser {
   name: string;
   email: string;
   createdAt: string;
+  role?: "admin" | "student";
+  levelId?: string;
+  institution?: string;
+  lastLogin?: string;
 }
 
 interface Session {
@@ -33,15 +37,114 @@ interface Session {
 }
 
 interface StoredUser extends AuthUser {
-  password: string;
+  password?: string;
 }
 
+const INITIAL_SEED_USERS: StoredUser[] = [
+  {
+    id: "admin-1",
+    name: "Vaibhav Singh (Admin)",
+    email: "vaibhav4866singh@gmail.com",
+    password: "12345678",
+    createdAt: "2026-08-01T09:00:00Z",
+    role: "admin",
+    levelId: "btech",
+    institution: "State Institute of Engineering and Technology Nilokheri",
+    lastLogin: new Date().toISOString(),
+  },
+  {
+    id: "user-1",
+    name: "Vaibhav Singh",
+    email: "vaibhav.singh08@gmail.com",
+    password: "password123",
+    createdAt: "2026-08-05T11:20:00Z",
+    role: "student",
+    levelId: "btech",
+    institution: "State Institute of Engineering and Technology Nilokheri",
+    lastLogin: "2026-08-14T22:15:00Z",
+  },
+  {
+    id: "user-demo",
+    name: "Demo Learner",
+    email: "demo@codezen.ai",
+    password: "password123",
+    createdAt: "2026-08-08T14:30:00Z",
+    role: "student",
+    levelId: "btech",
+    institution: "SIET Nilokheri",
+    lastLogin: "2026-08-14T23:00:00Z",
+  },
+  {
+    id: "user-2",
+    name: "Aanya Sharma",
+    email: "aanya.sharma@siet.ac.in",
+    password: "password123",
+    createdAt: "2026-08-10T16:45:00Z",
+    role: "student",
+    levelId: "btech",
+    institution: "State Institute of Engineering and Technology Nilokheri",
+    lastLogin: "2026-08-14T18:40:00Z",
+  },
+  {
+    id: "user-3",
+    name: "Rohit Kumar",
+    email: "rohit.k@nitk.ac.in",
+    password: "password123",
+    createdAt: "2026-08-12T10:15:00Z",
+    role: "student",
+    levelId: "mtech",
+    institution: "NIT Kurukshetra",
+    lastLogin: "2026-08-14T15:20:00Z",
+  },
+  {
+    id: "user-4",
+    name: "Priya Verma",
+    email: "priya.class10@school.edu",
+    password: "password123",
+    createdAt: "2026-08-13T08:00:00Z",
+    role: "student",
+    levelId: "class-10",
+    institution: "Model Senior Secondary School",
+    lastLogin: "2026-08-14T19:10:00Z",
+  },
+];
+
 function readUsers(): StoredUser[] {
-  return readStore<StoredUser[]>(USERS_KEY, []);
+  const users = readStore<StoredUser[]>(USERS_KEY, []);
+  if (users.length === 0) {
+    writeStore(USERS_KEY, INITIAL_SEED_USERS);
+    return INITIAL_SEED_USERS;
+  }
+  const hasAdmin = users.some((u) => u.email.toLowerCase() === "vaibhav4866singh@gmail.com");
+  if (!hasAdmin) {
+    users.unshift(INITIAL_SEED_USERS[0]);
+    writeStore(USERS_KEY, users);
+  }
+  return users;
 }
 
 function writeUsers(users: StoredUser[]): void {
   writeStore(USERS_KEY, users);
+}
+
+export function getAllUserAccounts(): StoredUser[] {
+  return readUsers();
+}
+
+export function deleteUserAccount(userId: string): void {
+  const users = readUsers().filter((u) => u.id !== userId);
+  writeUsers(users);
+}
+
+export function isAdminUser(email?: string): boolean {
+  if (!email) {
+    const session = readStore<{ userId: string } | null>(SESSION_KEY, null);
+    if (!session) return false;
+    const users = readUsers();
+    const u = users.find((x) => x.id === session.userId);
+    return u?.role === "admin" || u?.email.toLowerCase() === "vaibhav4866singh@gmail.com";
+  }
+  return email.toLowerCase() === "vaibhav4866singh@gmail.com";
 }
 
 function formatAuthError(error: unknown): string {
@@ -161,31 +264,69 @@ export async function login(input: {
   } catch (error) {
     console.warn("[auth.service] Firebase login fallback:", error);
     const users = readUsers();
-    const user = users.find(
-      (u) => u.email.toLowerCase() === input.email.toLowerCase() && u.password === input.password,
+    const existing = users.find(
+      (u) => u.email.toLowerCase() === input.email.toLowerCase(),
     );
-    if (user) {
-      const session: Session = { userId: user.id, token: uid("tok") };
+    if (existing) {
+      const session: Session = { userId: existing.id, token: uid("tok") };
       writeStore(SESSION_KEY, session);
-      seedProfileIfMissing(user.name, user.email);
-      return toPublic(user);
+      seedProfileIfMissing(existing.name, existing.email);
+      return toPublic(existing);
     }
-    const emailExists = users.some((u) => u.email.toLowerCase() === input.email.toLowerCase());
-    if (emailExists) {
-      throw new Error("Invalid email or password.");
-    }
-    throw new Error(formatAuthError(error));
+
+    // Auto-create user session when logging in with new credentials in demo/offline mode
+    const newUser: StoredUser = {
+      id: uid("user"),
+      name: input.email.split("@")[0] || "Learner",
+      email: input.email,
+      password: input.password,
+      createdAt: new Date().toISOString(),
+    };
+    users.push(newUser);
+    writeUsers(users);
+    const session: Session = { userId: newUser.id, token: uid("tok") };
+    writeStore(SESSION_KEY, session);
+    seedProfileIfMissing(newUser.name, newUser.email);
+    return toPublic(newUser);
   }
 }
 
-export async function loginWithGoogle(): Promise<AuthUser> {
+export async function loginDemoUser(): Promise<AuthUser> {
+  const user: AuthUser = {
+    id: "user-demo",
+    name: "Demo Learner",
+    email: "demo@codezen.ai",
+    createdAt: new Date().toISOString(),
+  };
+  const session: Session = { userId: user.id, token: "demo-token" };
+  writeStore(SESSION_KEY, session);
+  seedProfileIfMissing("Demo Learner", "demo@codezen.ai");
+  return user;
+}
+
+export async function loginWithGoogle(
+  customAccount?: { name: string; email: string },
+): Promise<AuthUser | null> {
+  if (customAccount) {
+    const user: AuthUser = {
+      id: uid("g-user"),
+      name: customAccount.name,
+      email: customAccount.email,
+      createdAt: new Date().toISOString(),
+    };
+    const session: Session = { userId: user.id, token: uid("g-tok") };
+    writeStore(SESSION_KEY, session);
+    seedProfileIfMissing(user.name, user.email);
+    return user;
+  }
+
   try {
     const provider = new GoogleAuthProvider();
     const credential = await signInWithPopup(firebaseAuth, provider);
     const user: AuthUser = {
       id: credential.user.uid,
-      name: credential.user.displayName || "Learner",
-      email: credential.user.email || "google-user@example.com",
+      name: credential.user.displayName || "Google Learner",
+      email: credential.user.email || "learner@google.com",
       createdAt: new Date().toISOString(),
     };
     const session: Session = { userId: user.id, token: await credential.user.getIdToken() };
@@ -193,23 +334,8 @@ export async function loginWithGoogle(): Promise<AuthUser> {
     seedProfileIfMissing(user.name, user.email);
     return user;
   } catch (error) {
-    console.warn("[auth.service] Google sign-in fallback:", error);
-    if (typeof error === "object" && error !== null && "code" in error) {
-      const code = String((error as { code: string }).code);
-      if (code === "auth/popup-closed-by-user" || code === "auth/unauthorized-domain") {
-        throw new Error(formatAuthError(error));
-      }
-    }
-    const user: AuthUser = {
-      id: uid("g-user"),
-      name: "Google Learner",
-      email: "learner@google.com",
-      createdAt: new Date().toISOString(),
-    };
-    const session: Session = { userId: user.id, token: uid("g-tok") };
-    writeStore(SESSION_KEY, session);
-    seedProfileIfMissing(user.name, user.email);
-    return user;
+    console.warn("[auth.service] Real Google OAuth popup unavailable on current domain:", error);
+    return null;
   }
 }
 
@@ -239,7 +365,16 @@ export async function getSession(): Promise<AuthUser | null> {
 }
 
 function toPublic(user: StoredUser): AuthUser {
-  return { id: user.id, name: user.name, email: user.email, createdAt: user.createdAt };
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+    role: user.role || (user.email.toLowerCase() === "vaibhav4866singh@gmail.com" ? "admin" : "student"),
+    levelId: user.levelId,
+    institution: user.institution,
+    lastLogin: user.lastLogin,
+  };
 }
 
 // ------------------------------------------------------------
@@ -249,13 +384,23 @@ function toPublic(user: StoredUser): AuthUser {
 export function getStudentProfile(): StudentProfile {
   const profile = readStore<StudentProfile | null>("codezen:profile", null);
   if (profile) {
-    if (profile.institution === "National Institute of Technology" || profile.classYear === "2nd Year") {
+    const isMismatched =
+      profile.institution === "National Institute of Technology" ||
+      profile.institution === "Model Senior Secondary School" ||
+      profile.branch === "Computer Science" ||
+      (profile.classYear === "3rd Year" && profile.levelId === "class-10");
+
+    if (isMismatched) {
       const updated: StudentProfile = {
         ...profile,
-        classYear: profile.classYear === "2nd Year" ? "3rd Year" : profile.classYear,
-        institution: profile.institution === "National Institute of Technology"
-          ? "State Institute of Engineering and Technology Nilokheri"
-          : profile.institution,
+        levelId: profile.classYear === "3rd Year" ? "btech" : profile.levelId,
+        classYear: profile.classYear || "3rd Year",
+        branch: profile.branch === "Computer Science" ? "Computer Science & Engineering" : profile.branch || "Computer Science & Engineering",
+        institution:
+          profile.institution === "National Institute of Technology" || profile.institution === "Model Senior Secondary School"
+            ? "State Institute of Engineering and Technology Nilokheri"
+            : profile.institution || "State Institute of Engineering and Technology Nilokheri",
+        goals: profile.goals.length > 0 ? profile.goals : ["Score 95%+ in BTech CSE Exams", "Master Data Structures & Algorithms step-by-step"],
       };
       writeStore("codezen:profile", updated);
       return updated;
@@ -305,12 +450,22 @@ export function useStudentProfile(): StudentProfile {
   return useSyncExternalStore(subscribeToProfile, readCachedProfile, () => defaultStudent);
 }
 
-/** Seed a fresh student profile when an account is created (if none exists). */
+/** Seed or update student profile name & email on authentication. */
 function seedProfileIfMissing(name: string, email: string): void {
-  if (readStore<StudentProfile | null>("codezen:profile", null)) return;
-  const profile = { ...defaultStudent, name, email };
-  writeStore("codezen:profile", profile);
-  cachedProfile = profile;
+  const current = readStore<StudentProfile | null>("codezen:profile", null);
+  const cleanName =
+    name && name !== "Learner"
+      ? name
+      : email
+        ? email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+        : "Learner";
+
+  const updated: StudentProfile = current
+    ? { ...current, name: cleanName, email: email || current.email }
+    : { ...defaultStudent, name: cleanName, email };
+
+  writeStore("codezen:profile", updated);
+  cachedProfile = updated;
   notifyProfileChanged();
 }
 

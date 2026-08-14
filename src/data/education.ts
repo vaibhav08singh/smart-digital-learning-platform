@@ -284,7 +284,15 @@ export const domains: Domain[] = [
 ];
 
 export function getEducationLevel(id: string): EducationLevel | undefined {
-  return educationLevels.find((l) => l.id === id);
+  if (!id) return undefined;
+  const exact = educationLevels.find((l) => l.id === id);
+  if (exact) return exact;
+  const target = id.toLowerCase();
+  if (target === "phd" || target === "doctorate") return educationLevels.find((l) => l.id === "research");
+  if (target === "postgrad") return educationLevels.find((l) => l.id === "postgraduate");
+  if (target === "undergrad") return educationLevels.find((l) => l.id === "undergraduate");
+  if (target === "master" || target === "masters") return educationLevels.find((l) => l.id === "mtech");
+  return undefined;
 }
 
 export function getProgram(id: string): Program | undefined {

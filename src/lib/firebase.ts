@@ -26,12 +26,20 @@ export const app: FirebaseApp = getApps().length > 0 ? getApp() : initializeApp(
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
 
-// Initialize Analytics conditionally (only in browser environment)
+// Initialize Analytics conditionally (only in browser environment with valid API key)
 export let analytics: Analytics | null = null;
 if (typeof window !== "undefined") {
   isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
+    if (
+      supported &&
+      process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+      process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== "demo-firebase-api-key"
+    ) {
+      try {
+        analytics = getAnalytics(app);
+      } catch {
+        // Suppress analytics init errors in local development
+      }
     }
   });
 }
