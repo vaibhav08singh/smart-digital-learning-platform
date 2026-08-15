@@ -18,6 +18,7 @@ import { KnowledgeUniverse } from "@/components/3d/knowledge-universe";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MagneticCTA } from "@/components/ui/magnetic-cta";
+import { DomainIcon } from "@/components/education/domain-icon";
 import { LiveDemoDialog } from "@/components/demo/live-demo-dialog";
 import { domains } from "@/data/education";
 import { cn } from "@/lib/utils";
@@ -261,7 +262,7 @@ export default function HomePage() {
                   className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-md transition-transform group-hover:scale-110"
                   style={{ backgroundColor: domain.color }}
                 >
-                  <Sparkles className="h-5 w-5" />
+                  <DomainIcon domainId={domain.id} className="h-5 w-5" />
                 </span>
                 <span className="text-sm font-semibold">{domain.name}</span>
                 <span className="line-clamp-2 text-xs text-muted-foreground">

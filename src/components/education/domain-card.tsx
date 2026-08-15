@@ -5,6 +5,8 @@ import { ArrowRight } from "lucide-react";
 import type { Domain } from "@/types";
 import { cn } from "@/lib/utils";
 
+import { DomainIcon } from "@/components/education/domain-icon";
+
 export function DomainCard({
   domain,
   selected,
@@ -41,7 +43,7 @@ export function DomainCard({
       }
     >
       <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md transition-transform group-hover:scale-110" style={{ backgroundColor: domain.color }}>
-        <span className="text-lg font-bold">{domain.name.charAt(0)}</span>
+        <DomainIcon domainId={domain.id} className="h-5 w-5" />
       </div>
       <p className="font-semibold">{domain.name}</p>
       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{domain.description}</p>
