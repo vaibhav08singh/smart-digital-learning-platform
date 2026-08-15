@@ -489,7 +489,7 @@ EXECUTE_API_KEY=
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3001](http://localhost:3001) in your browser.
 
 ---
 
@@ -497,7 +497,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Starts the Next.js development server on `http://localhost:3000` |
+| `npm run dev` | Starts the Next.js development server on `http://localhost:3001` (or `http://localhost:3000`) |
 | `npm run build` | Compiles and builds the production bundle |
 | `npm start` | Starts the Next.js production server |
 | `npm run lint` | Runs ESLint checks across all codebase files |
