@@ -341,7 +341,7 @@ Student Ask Doubt / Code Assistance
 ## 🔗 External Integrations
 
 - ✨ **Google Gemini API**: Primary AI provider (`gemini-3.6-flash`) for doubt solving and code intelligence.
-- 🤖 **OpenAI API**: Alternate AI provider (`gpt-4o-mini`).
+- 🤖 **OpenAI API**: Alternate AI provider (`gpt-4o-mini`) 
 - 🎥 **YouTube Data API v3**: Enables real-time educational video discovery.
 - 💻 **Piston Backend**: Public or self-hosted Piston execution engine for 24+ programming languages.
 - 🔥 **Firebase SDK**: Firebase Auth, Firestore, and Analytics integration support in `src/lib/firebase.ts`.
