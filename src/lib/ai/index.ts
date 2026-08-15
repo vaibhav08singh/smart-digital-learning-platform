@@ -9,7 +9,7 @@ const providers: Record<AiProviderId, AiProvider> = {
 };
 
 const defaultModels: Record<AiProviderId, string> = {
-  gemini: "gemini-2.5-flash",
+  gemini: "gemini-3.6-flash",
   openai: "gpt-4o-mini",
 };
 
