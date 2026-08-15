@@ -136,6 +136,49 @@ export function deleteUserAccount(userId: string): void {
   writeUsers(users);
 }
 
+export function createAdminAccount(input: {
+  name: string;
+  email: string;
+  password?: string;
+  role?: "admin" | "student";
+  levelId?: string;
+  institution?: string;
+}): StoredUser {
+  const users = readUsers();
+  const existing = users.find((u) => u.email.toLowerCase() === input.email.toLowerCase());
+  if (existing) {
+    throw new Error("An account with this email address already exists.");
+  }
+  const newUser: StoredUser = {
+    id: uid(input.role === "admin" ? "admin" : "user"),
+    name: input.name,
+    email: input.email.trim(),
+    password: input.password || "password123",
+    createdAt: new Date().toISOString(),
+    role: input.role || "admin",
+    levelId: input.levelId || "btech",
+    institution: input.institution || "State Institute of Engineering and Technology Nilokheri",
+    lastLogin: new Date().toISOString(),
+  };
+  users.unshift(newUser);
+  writeUsers(users);
+  return newUser;
+}
+
+export function updateUserRole(userId: string, role: "admin" | "student"): StoredUser {
+  const users = readUsers();
+  const idx = users.findIndex((u) => u.id === userId);
+  if (idx === -1) {
+    throw new Error("User account not found.");
+  }
+  if (users[idx].email.toLowerCase() === "vaibhav4866singh@gmail.com" && role !== "admin") {
+    throw new Error("Superadmin role cannot be changed.");
+  }
+  users[idx].role = role;
+  writeUsers(users);
+  return users[idx];
+}
+
 export function isAdminUser(email?: string): boolean {
   if (!email) {
     const session = readStore<{ userId: string } | null>(SESSION_KEY, null);
@@ -144,6 +187,9 @@ export function isAdminUser(email?: string): boolean {
     const u = users.find((x) => x.id === session.userId);
     return u?.role === "admin" || u?.email.toLowerCase() === "vaibhav4866singh@gmail.com";
   }
+  const users = readUsers();
+  const u = users.find((x) => x.email.toLowerCase() === email.toLowerCase());
+  if (u?.role === "admin") return true;
   return email.toLowerCase() === "vaibhav4866singh@gmail.com";
 }
 

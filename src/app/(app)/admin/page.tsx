@@ -12,6 +12,12 @@ import {
   Users,
   Eye,
   Shield,
+  UserPlus,
+  Lock,
+  Key,
+  Sparkles,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +33,8 @@ import {
 import {
   deleteUserAccount,
   getAllUserAccounts,
+  createAdminAccount,
+  updateUserRole,
   type AuthUser,
 } from "@/services/auth.service";
 import { useStudentProfile } from "@/services/auth.service";
@@ -42,6 +50,19 @@ export default function AdminDashboardPage() {
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "student">("all");
   const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
   const [deleteConfirmUser, setDeleteConfirmUser] = useState<ExtendedUser | null>(null);
+
+  // Add Admin Account Modal state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newAdminName, setNewAdminName] = useState("");
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [newAdminPassword, setNewAdminPassword] = useState("admin123");
+  const [newAdminRole, setNewAdminRole] = useState<"admin" | "student">("admin");
+  const [newAdminLevel, setNewAdminLevel] = useState("btech");
+  const [newAdminInstitution, setNewAdminInstitution] = useState(
+    "State Institute of Engineering and Technology Nilokheri"
+  );
+  const [addError, setAddError] = useState("");
+  const [addSuccess, setAddSuccess] = useState("");
 
   useEffect(() => {
     loadUsers();
@@ -62,6 +83,60 @@ export default function AdminDashboardPage() {
     setDeleteConfirmUser(null);
     if (selectedUser?.id === user.id) {
       setSelectedUser(null);
+    }
+  }
+
+  function handleToggleRole(user: ExtendedUser) {
+    if (user.email.toLowerCase() === "vaibhav4866singh@gmail.com") {
+      alert("Super Admin role (vaibhav4866singh@gmail.com) cannot be modified.");
+      return;
+    }
+    const targetRole = user.role === "admin" ? "student" : "admin";
+    try {
+      updateUserRole(user.id, targetRole);
+      loadUsers();
+      if (selectedUser?.id === user.id) {
+        setSelectedUser({ ...selectedUser, role: targetRole });
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update role");
+    }
+  }
+
+  function handleCreateAccount(e: React.FormEvent) {
+    e.preventDefault();
+    setAddError("");
+    setAddSuccess("");
+
+    if (!newAdminName.trim() || !newAdminEmail.trim()) {
+      setAddError("Please enter both Name and Email address.");
+      return;
+    }
+
+    try {
+      const created = createAdminAccount({
+        name: newAdminName.trim(),
+        email: newAdminEmail.trim(),
+        password: newAdminPassword.trim() || "admin123",
+        role: newAdminRole,
+        levelId: newAdminLevel,
+        institution: newAdminInstitution.trim(),
+      });
+
+      loadUsers();
+      setAddSuccess(
+        `Account successfully created for ${created.name} (${created.role === "admin" ? "Admin 👑" : "Student 🎓"})!`
+      );
+
+      setTimeout(() => {
+        setNewAdminName("");
+        setNewAdminEmail("");
+        setNewAdminPassword("admin123");
+        setAddSuccess("");
+        setIsAddModalOpen(false);
+      }, 1200);
+    } catch (err) {
+      setAddError(err instanceof Error ? err.message : "Failed to create account.");
     }
   }
 
@@ -120,11 +195,20 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setIsAddModalOpen(true)}
+            className="gap-1.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20 border-0"
+          >
+            <UserPlus className="h-4 w-4" /> Add Admin ID / Account
+          </Button>
+
           <Button variant="outline" size="sm" onClick={loadUsers} className="gap-1.5">
             <RefreshCw className="h-4 w-4" /> Refresh
           </Button>
-          <Button variant="default" size="sm" onClick={exportUserData} className="gap-1.5 bg-primary">
+          <Button variant="outline" size="sm" onClick={exportUserData} className="gap-1.5">
             <Download className="h-4 w-4" /> Export Users JSON
           </Button>
         </div>
@@ -262,13 +346,19 @@ export default function AdminDashboardPage() {
                 ) : (
                   filteredUsers.map((u) => {
                     const isAdmin = u.role === "admin" || u.email.toLowerCase() === "vaibhav4866singh@gmail.com";
+                    const isSuperadmin = u.email.toLowerCase() === "vaibhav4866singh@gmail.com";
+
                     return (
                       <tr key={u.id} className="hover:bg-muted/20 transition-colors">
                         <td className="p-3">
                           <div className="flex items-center gap-3">
-                            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-white text-xs ${
-                              isAdmin ? "bg-gradient-to-br from-amber-500 to-orange-600" : "bg-gradient-to-br from-indigo-500 to-violet-600"
-                            }`}>
+                            <div
+                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-white text-xs ${
+                                isAdmin
+                                  ? "bg-gradient-to-br from-amber-500 to-orange-600 shadow-md shadow-amber-500/20"
+                                  : "bg-gradient-to-br from-indigo-500 to-violet-600"
+                              }`}
+                            >
                               {u.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
@@ -293,7 +383,7 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="p-3">
                           <p className="font-medium text-foreground">
-                            {u.levelId ? u.levelId.toUpperCase() : "BTech CSE"}
+                            {u.levelId ? u.levelId.toUpperCase() : "BTECH CSE"}
                           </p>
                           <p className="text-muted-foreground text-[11px] truncate max-w-[200px]">
                             {u.institution || "State Institute of Engineering and Technology Nilokheri"}
@@ -304,6 +394,24 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="p-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* Make Admin / Revoke Admin quick button */}
+                            {!isSuperadmin && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleToggleRole(u)}
+                                className={`h-8 px-2.5 text-xs transition-all ${
+                                  !isAdmin
+                                    ? "border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:text-amber-200"
+                                    : "border-indigo-500/40 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 hover:text-indigo-200"
+                                }`}
+                                title={!isAdmin ? "Promote user to Admin" : "Demote Admin to Student"}
+                              >
+                                <Shield className="h-3.5 w-3.5 mr-1" />
+                                {!isAdmin ? "Make Admin" : "Make Student"}
+                              </Button>
+                            )}
+
                             <Button
                               variant="ghost"
                               size="sm"
@@ -312,12 +420,14 @@ export default function AdminDashboardPage() {
                             >
                               <Eye className="h-3.5 w-3.5 mr-1" /> View
                             </Button>
-                            {!isAdmin && (
+
+                            {!isSuperadmin && (
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setDeleteConfirmUser(u)}
                                 className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
+                                title="Delete User Account"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>
@@ -334,32 +444,198 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Modal: Create New Admin / User Account */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="max-w-lg border-primary/30 bg-slate-950 p-6 text-foreground shadow-2xl backdrop-blur-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold text-amber-400">
+              <UserPlus className="h-5 w-5 text-amber-400" /> Create New Admin or User ID
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Register a new Administrator or Student account with custom credentials.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateAccount} className="space-y-4 pt-3 text-xs">
+            {addError && (
+              <div className="flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{addError}</span>
+              </div>
+            )}
+
+            {addSuccess && (
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-emerald-400">
+                <Check className="h-4 w-4 shrink-0" />
+                <span>{addSuccess}</span>
+              </div>
+            )}
+
+            {/* Role Selection */}
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-200">Account Type & Role</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setNewAdminRole("admin")}
+                  className={`flex items-center justify-center gap-2 rounded-xl border p-3 font-semibold transition-all ${
+                    newAdminRole === "admin"
+                      ? "border-amber-500/60 bg-amber-500/20 text-amber-300 shadow-md shadow-amber-500/10"
+                      : "border-slate-800 bg-slate-900/60 text-slate-400 hover:bg-slate-900"
+                  }`}
+                >
+                  <Shield className="h-4 w-4 text-amber-400" /> Admin (Superuser 👑)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewAdminRole("student")}
+                  className={`flex items-center justify-center gap-2 rounded-xl border p-3 font-semibold transition-all ${
+                    newAdminRole === "student"
+                      ? "border-indigo-500/60 bg-indigo-500/20 text-indigo-300 shadow-md shadow-indigo-500/10"
+                      : "border-slate-800 bg-slate-900/60 text-slate-400 hover:bg-slate-900"
+                  }`}
+                >
+                  <GraduationCap className="h-4 w-4 text-indigo-400" /> Student Learner 🎓
+                </button>
+              </div>
+            </div>
+
+            {/* Name */}
+            <div className="space-y-1">
+              <label className="font-semibold text-slate-200">Full Name</label>
+              <Input
+                placeholder="e.g. Dr. Rajesh Sharma"
+                value={newAdminName}
+                onChange={(e) => setNewAdminName(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-slate-100"
+                required
+              />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1">
+              <label className="font-semibold text-slate-200">Email Address (Login ID)</label>
+              <Input
+                type="email"
+                placeholder="e.g. rajesh.admin@codezen.ai"
+                value={newAdminEmail}
+                onChange={(e) => setNewAdminEmail(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-slate-100"
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1">
+              <label className="font-semibold text-slate-200">Password</label>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Password"
+                  value={newAdminPassword}
+                  onChange={(e) => setNewAdminPassword(e.target.value)}
+                  className="bg-slate-900 border-slate-800 text-slate-100 pr-10"
+                />
+                <Key className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              </div>
+              <p className="text-[11px] text-slate-400">Default password is set to admin123</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* Level */}
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-200">Education Level</label>
+                <select
+                  value={newAdminLevel}
+                  onChange={(e) => setNewAdminLevel(e.target.value)}
+                  className="w-full rounded-md border border-slate-800 bg-slate-900 p-2 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                >
+                  <option value="btech">BTech CSE / IT</option>
+                  <option value="mtech">MTech Computer Science</option>
+                  <option value="bca">BCA / MCA</option>
+                  <option value="class-12">Class 12 Senior</option>
+                  <option value="class-10">Class 10 High School</option>
+                </select>
+              </div>
+
+              {/* Institution */}
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-200">Institution / College</label>
+                <Input
+                  placeholder="Institution name"
+                  value={newAdminInstitution}
+                  onChange={(e) => setNewAdminInstitution(e.target.value)}
+                  className="bg-slate-900 border-slate-800 text-slate-100"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsAddModalOpen(false)}
+                className="text-slate-400 hover:text-slate-200"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold"
+              >
+                Create {newAdminRole === "admin" ? "Admin ID 👑" : "Account 🎓"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* User Details Modal */}
       <Dialog open={Boolean(selectedUser)} onOpenChange={(open) => !open && setSelectedUser(null)}>
         <DialogContent className="max-w-md border-border/80 bg-card p-6 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <UserCheck className="h-5 w-5 text-primary" /> Account Details
+              <UserCheck className="h-5 w-5 text-primary" /> Account Details & Privileges
             </DialogTitle>
-            <DialogDescription>Full profile breakdown for registered user</DialogDescription>
+            <DialogDescription>Full profile breakdown & administrative actions</DialogDescription>
           </DialogHeader>
 
           {selectedUser && (
             <div className="space-y-4 pt-2 text-xs">
-              <div className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
-                  {selectedUser.name.charAt(0)}
+              <div className="flex items-center justify-between gap-3 rounded-xl border bg-muted/30 p-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                    {selectedUser.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-foreground">{selectedUser.name}</h3>
+                    <p className="text-muted-foreground">{selectedUser.email}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm text-foreground">{selectedUser.name}</h3>
-                  <p className="text-muted-foreground">{selectedUser.email}</p>
-                </div>
+
+                {selectedUser.email.toLowerCase() !== "vaibhav4866singh@gmail.com" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleToggleRole(selectedUser)}
+                    className="h-8 text-xs border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+                  >
+                    <Shield className="h-3.5 w-3.5 mr-1" />
+                    {selectedUser.role === "admin" ? "Demote to Student" : "Promote to Admin"}
+                  </Button>
+                )}
               </div>
 
               <div className="space-y-2 rounded-xl border p-3">
                 <div className="flex justify-between py-1 border-b">
                   <span className="text-muted-foreground">Account Role:</span>
-                  <span className="font-semibold">{selectedUser.role || "student"}</span>
+                  <span className="font-semibold capitalize flex items-center gap-1">
+                    {selectedUser.role || "student"}
+                    {(selectedUser.role === "admin" ||
+                      selectedUser.email.toLowerCase() === "vaibhav4866singh@gmail.com") && (
+                      <span className="text-amber-400">👑</span>
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1 border-b">
                   <span className="text-muted-foreground">Education Level:</span>
@@ -417,3 +693,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+

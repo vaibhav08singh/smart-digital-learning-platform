@@ -197,6 +197,8 @@ An enterprise-grade administration workspace (`/admin`) for platform management 
   - **Email ID**: `xxxxxxxxx@gmail.com`
   - **Password**: `000000000`
   - **Portal Route**: `/admin`
+- ➕ **Add Admin ID & Account Creation**: Create new Admin 👑 or Student 🎓 accounts directly from the control panel modal with custom credentials and roles.
+- 🛡️ **Role Promotion & Demotion**: 1-click **Make Admin** / **Make Student** action controls to grant or revoke administrative privileges for registered accounts.
 - 👥 **User Account Directory**: Real-time listing of all registered users with role badges, academic levels, institutions, and registration timestamps.
 - 📊 **Platform Health Metrics**: Key performance counters for total registered profiles, active students, BTech engineering learners, and admin counts.
 - 🔍 **Search & Role Filter**: Filter users by role (`All`, `Admins`, `Students`) or search by student name, email address, or college.
