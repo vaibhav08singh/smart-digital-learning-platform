@@ -230,13 +230,13 @@ export function CodeEditor({
   }
 
   const editor = (
-    <div className="relative flex h-full overflow-hidden rounded-xl border bg-[#0b1020]">
+    <div className="relative flex h-full overflow-hidden rounded-xl border bg-[#0b1020] isolate z-0">
       {/* Line numbers gutter */}
       <div
-        className="w-12 shrink-0 select-none border-r border-slate-800/60 bg-[#080c18] py-4 pr-3 text-right font-mono text-[13px] leading-6 z-20 overflow-hidden"
+        className="relative w-12 shrink-0 select-none border-r border-slate-800/60 bg-[#080c18] py-4 pr-3 text-right font-mono text-[13px] leading-6 z-10 overflow-hidden"
         aria-hidden
       >
-        <div style={{ transform: `translateY(${-scrollTop}px)` }}>
+        <div style={{ transform: `translateY(${-Math.max(0, scrollTop)}px)` }}>
           {Array.from({ length: lineCount }, (_, i) => (
             <div
               key={i}
@@ -255,7 +255,7 @@ export function CodeEditor({
           className="pointer-events-none absolute left-0 right-0 z-0 border-l-2 border-sky-400 bg-sky-500/10 transition-transform duration-75"
           style={{
             height: "24px",
-            transform: `translateY(${(activeLine - 1) * 24 + 16 - scrollTop}px)`,
+            transform: `translateY(${(activeLine - 1) * 24 + 16 - Math.max(0, scrollTop)}px)`,
           }}
         />
 
@@ -292,7 +292,7 @@ export function CodeEditor({
             className={cn("p-4", EDITOR_FONT)}
             style={{
               ...FONT_STYLE,
-              transform: `translate(${-scrollLeft}px, ${-scrollTop}px)`,
+              transform: `translate(${-scrollLeft}px, ${-Math.max(0, scrollTop)}px)`,
             }}
           >
             <pre className={cn("m-0 whitespace-pre text-slate-200", EDITOR_FONT)} style={FONT_STYLE}>{highlighted}</pre>
