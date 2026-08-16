@@ -33,34 +33,37 @@ export function UniverseCanvas() {
   }, [router]);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full select-none">
       <Canvas
-        camera={{ position: [0, 2.5, 13.5], fov: 48 }}
-        dpr={[1, 1.5]}
+        camera={{ position: [0, 3.4, 11.2], fov: 46 }}
+        dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
-        aria-label="Interactive 3D Solar System"
+        aria-label="Interactive 3D Revolving Solar System"
       >
         <KnowledgeUniverseScene reducedMotion={reducedMotion} onHover={setHovered} />
         <OrbitControls
           enableZoom={false}
           enablePan={false}
-          rotateSpeed={0.8}
-          minPolarAngle={Math.PI / 2}
-          maxPolarAngle={Math.PI / 2}
+          rotateSpeed={0.5}
+          enableDamping={true}
+          dampingFactor={0.04}
+          minPolarAngle={Math.PI / 3.8}
+          maxPolarAngle={Math.PI / 2.1}
         />
       </Canvas>
 
       {hovered && (
-        <div className="pointer-events-none absolute bottom-4 left-1/2 w-[90%] max-w-md -translate-x-1/2 rounded-xl border bg-card/90 p-4 text-center shadow-lg backdrop-blur">
-          <p className="font-semibold">{hovered.name}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{hovered.description}</p>
-          <p className="mt-1 text-xs text-primary">Click to explore</p>
+        <div className="pointer-events-none absolute bottom-6 left-1/2 w-[90%] max-w-sm -translate-x-1/2 rounded-2xl border border-white/20 bg-black/85 p-4 text-center shadow-2xl backdrop-blur-xl">
+          <p className="font-bold text-white text-sm">{hovered.name}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{hovered.description}</p>
+          <p className="mt-1.5 text-[11px] font-semibold text-primary">Click to explore course</p>
         </div>
       )}
 
-      <p className="pointer-events-none absolute right-3 top-3 hidden rounded-full bg-black/40 px-2.5 py-1 text-[10px] text-white/80 backdrop-blur sm:block">
-        Drag to orbit
-      </p>
+      <div className="pointer-events-none absolute right-4 top-4 hidden rounded-full border border-white/20 bg-black/60 px-3 py-1.5 text-xs text-white/90 backdrop-blur-md sm:flex items-center gap-1.5">
+        <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
+        Drag to rotate
+      </div>
     </div>
   );
 }

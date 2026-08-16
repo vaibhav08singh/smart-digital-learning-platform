@@ -255,11 +255,13 @@ function detectCode(text: string): boolean {
 
 const MODE_INTENT: Record<StudyModeId, TutorIntent> = {
   explain: "explain",
-  simple: "simple",
+  code: "code",
   exam: "exam",
-  practice: "practice",
   quiz: "quiz",
+  interview: "interview",
+  project: "studyplan",
   debug: "debug",
+  simple: "simple",
   summarize: "summarize",
   notes: "notes",
 };

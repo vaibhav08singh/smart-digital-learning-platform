@@ -45,15 +45,40 @@ Centralized learning hub for student progress tracking, daily goals, study strea
 
 ### 🤖 AI Tutor
 ![AI Tutor](./screenshots/ai-tutor.png)
-AI-powered academic and coding assistance for concept explanations, problem-solving, and math expressions.
+AI-powered academic and coding assistance featuring 10 study modes, live code debugging, and student insights.
+
+### 📚 Course Catalog & Filters
+![Courses](./screenshots/courses.png)
+Structured course catalog with multi-grade level, domain, and difficulty filters.
+
+### 📖 Subject Syllabus & Topics
+![Subjects](./screenshots/subjects.png)
+Comprehensive subject breakdown covering programming fundamentals, core computer science, and engineering syllabus.
 
 ### 💻 Coding Lab
 ![Coding Lab](./screenshots/coding-lab.png)
 Integrated multi-language programming environment featuring live code execution, test-case runner, and AI code optimization.
 
+### 📅 Study Planner
+![Study Planner](./screenshots/planner.png)
+Weekly study session scheduling, smart rescheduling, and habit tracking.
+
+### 🎯 AI Weakness Detector
+![AI Weakness Detector](./screenshots/weakness.png)
+Real-time topic accuracy diagnostics classifying weak, improving, and strong academic areas.
+
 ### 🎥 Resource Hub
 ![Resource Hub](./screenshots/resource-hub.png)
-Educational video discovery powered by server-side YouTube Data API integration.
+Educational video discovery, notes, documentation, PYQs, and recommended textbooks for every CS subject.
+
+### 👤 Student Profile & Activity Feed
+![Student Profile](./screenshots/profile.png)
+![Recent Activity Feed](./screenshots/profile-activity.png)
+Personalized student profile detailing academic program, study streaks, progress, subject strengths, and real-time XP activity feed.
+
+### 🔐 Authentication & Sign Up
+![Register Page](./screenshots/register.png)
+Secure account registration and single sign-on workspace with CodeZen brand styling.
 
 ### 👑 Admin Control Panel
 ![Admin Control Panel](./screenshots/admin.png)
@@ -578,8 +603,15 @@ The **Smart Digital Learning Platform** addresses the digital divide and fragmen
 | **Landing Page** | ![Landing Page](./screenshots/landing.png) |
 | **Student Dashboard** | ![Student Dashboard](./screenshots/dashboard.png) |
 | **AI Tutor** | ![AI Tutor](./screenshots/ai-tutor.png) |
+| **Course Catalog** | ![Course Catalog](./screenshots/courses.png) |
+| **Subject Syllabus** | ![Subject Syllabus](./screenshots/subjects.png) |
 | **Coding Lab** | ![Coding Lab](./screenshots/coding-lab.png) |
+| **Study Planner** | ![Study Planner](./screenshots/planner.png) |
+| **Weakness Detector** | ![Weakness Detector](./screenshots/weakness.png) |
 | **Resource Hub** | ![Resource Hub](./screenshots/resource-hub.png) |
+| **Student Profile** | ![Student Profile](./screenshots/profile.png) |
+| **Activity Feed & XP** | ![Activity Feed](./screenshots/profile-activity.png) |
+| **User Sign Up** | ![User Sign Up](./screenshots/register.png) |
 | **Admin Control Panel** | ![Admin Control Panel](./screenshots/admin.png) |
 
 </div>

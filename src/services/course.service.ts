@@ -22,6 +22,14 @@ export async function getCourses(filters: CourseFilters = {}): Promise<Course[]>
   await simulateLatency(250);
   const profile = getStudentProfile();
   let result = searchCourses(filters.query ?? "");
+  const initialSet = [...result];
+
+  if (filters.domainId) {
+    const domainMatches = result.filter((c) => c.domainId === filters.domainId);
+    if (domainMatches.length > 0) {
+      result = domainMatches;
+    }
+  }
 
   if (filters.levelId) {
     const exact = result.filter((c) => c.levelId === filters.levelId);
@@ -30,19 +38,27 @@ export async function getCourses(filters: CourseFilters = {}): Promise<Course[]>
     } else {
       const targetLevel = educationLevels.find((l) => l.id === filters.levelId);
       if (targetLevel) {
-        result = result.filter((c) => {
+        const stageMatches = result.filter((c) => {
           const courseLevel = educationLevels.find((l) => l.id === c.levelId);
           return (
             courseLevel?.stage === targetLevel.stage ||
             courseLevel?.group === targetLevel.group
           );
         });
+        if (stageMatches.length > 0) {
+          result = stageMatches;
+        }
       }
     }
   }
 
-  if (filters.difficulty) result = result.filter((c) => c.difficulty === filters.difficulty);
-  if (filters.domainId) result = result.filter((c) => c.domainId === filters.domainId);
+  if (filters.difficulty) {
+    const diffMatches = result.filter((c) => c.difficulty === filters.difficulty);
+    if (diffMatches.length > 0) {
+      result = diffMatches;
+    }
+  }
+
   if (filters.subjectId) {
     const sId = filters.subjectId.toLowerCase();
     const exact = result.filter(
@@ -60,9 +76,25 @@ export async function getCourses(filters: CourseFilters = {}): Promise<Course[]>
       if (fuzzy.length > 0) result = fuzzy;
     }
   }
+
   if (filters.onlyEnrolled) result = result.filter((c) => profile.enrolledCourseIds?.includes(c.id));
   if (filters.onlyBookmarked)
     result = result.filter((c) => profile.bookmarkedCourseIds?.includes(c.id));
+
+  // Fallback: if strict multi-filtering produced 0 results, fall back gracefully
+  if (result.length === 0 && filters.domainId) {
+    const domainFallback = initialSet.filter((c) => c.domainId === filters.domainId);
+    if (domainFallback.length > 0) result = domainFallback;
+  }
+  if (result.length === 0 && filters.levelId) {
+    const targetLevel = educationLevels.find((l) => l.id === filters.levelId);
+    const levelFallback = initialSet.filter((c) => {
+      if (c.levelId === filters.levelId) return true;
+      const courseLevel = educationLevels.find((l) => l.id === c.levelId);
+      return courseLevel?.stage === targetLevel?.stage;
+    });
+    if (levelFallback.length > 0) result = levelFallback;
+  }
 
   return result.map((c) => ({
     ...c,

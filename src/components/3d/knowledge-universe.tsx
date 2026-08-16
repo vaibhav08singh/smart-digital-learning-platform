@@ -58,9 +58,7 @@ export function KnowledgeUniverse({ height = 520 }: { height?: number }) {
     return () => window.clearTimeout(timer);
   }, [prefersReducedMotion]);
 
-  const isMobile =
-    typeof window !== "undefined" ? window.innerWidth < 768 : false;
-  const render3D = use3D && !prefersReducedMotion && !isMobile;
+  const render3D = use3D && !prefersReducedMotion;
 
   return (
     <div className="relative w-full overflow-hidden rounded-3xl" style={{ height }}>

@@ -29,3 +29,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scratch & data artifacts
+final_ai_result.json
+quiz_data.json
+

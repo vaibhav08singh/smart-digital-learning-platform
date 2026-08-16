@@ -40,21 +40,25 @@ const features = [
     icon: Compass,
     title: "3D Knowledge Universe",
     description: "Explore every domain — from Mathematics to Research — in one interactive galaxy.",
+    href: "/explore",
   },
   {
     icon: GraduationCap,
     title: "Every Level, One Platform",
     description: "Class 1 or MTech? CodeZen adapts content, subjects and difficulty to you.",
+    href: "/courses",
   },
   {
     icon: Bot,
     title: "AI Tutor",
     description: "Explain, practice, summarize — your personal learning companion, always on.",
+    href: "/ai-tutor",
   },
   {
     icon: BarChart3,
     title: "Mastery Analytics",
     description: "Know exactly what you've mastered and what needs practice, in real time.",
+    href: "/analytics",
   },
 ];
 
@@ -286,15 +290,17 @@ export default function HomePage() {
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.5, delay: i * 0.06, ease: "easeOut" as const }}
               >
-                <Card className="h-full transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-primary/30">
-                  <CardContent className="p-6">
-                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform hover:scale-110">
-                      <feature.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-semibold">{feature.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
+                <Link href={feature.href} className="group block h-full">
+                  <Card className="h-full cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:border-primary/50 hover:shadow-lg">
+                    <CardContent className="p-6">
+                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+                        <feature.icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-semibold">{feature.title}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>

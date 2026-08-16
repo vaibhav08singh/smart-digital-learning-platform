@@ -107,6 +107,27 @@ function buildSystemPrompt(args: {
     `Intent instructions (for "${analysis.intent}"):\n${INTENT_INSTRUCTIONS[analysis.intent].replace("{name}", firstName)}`,
   );
 
+  const modeInstructions: Record<StudyModeId, string> = {
+    explain:
+      "MODE: LEARN / EXPLAIN — Teach concepts clearly with step-by-step intuition, formal definitions, worked examples, and key takeaways. Adapt depth to the student's level.",
+    code: "MODE: CODING MENTOR — Structure responses logically:\n1. Problem Understanding\n2. Approach & Algorithm\n3. Pseudocode\n4. Production-ready Clean Code with comments\n5. Step-by-step Explanation\n6. Time Complexity (Big-O) & Space Complexity\n7. Edge Cases & Common Mistakes\n8. Recommended Practice Challenge",
+    exam: "MODE: EXAM PREPARATION — Provide structured, exam-oriented answers proportional to requested marks (2-mark: crisp 60-120 words; 5-mark: 180-350 words with example/diagram; 10-mark: Introduction -> Core Concept -> Explanation -> Example -> Advantages/Disadvantages -> Conclusion).",
+    quiz: "MODE: INTERACTIVE QUIZ — Ask ONE focused multiple-choice or conceptual question at a time. Wait for the student's response. Evaluate their answer with score tracking, explain why choices are correct/incorrect, and recommend what to study next.",
+    interview:
+      "MODE: INTERVIEW SIMULATOR — Act as a Senior Technical Interviewer. Ask ONE question at a time (DSA, System Design, CS Fundamentals, or Behavioral). When the student answers, provide: 1. Score (1-10)\n2. What was strong\n3. What was missing\n4. Ideal Answer\n5. Next follow-up question. Do NOT reveal answers before the candidate attempts.",
+    project:
+      "MODE: PROJECT MENTOR — Act as a Principal Technical Mentor. Guide the student through project building:\n1. Milestones & Scope\n2. Architecture & Stack Selection\n3. Database Schema\n4. API Route Contracts\n5. Security & Authentication\n6. Deployment & Documentation.",
+    debug: "MODE: CODE DEBUGGER — Perform a complete code audit:\n1. Identify Syntax, Logical, Runtime, or Security bugs\n2. What Went Wrong -> Why It Happened -> How to Fix It\n3. Provide the corrected, runnable code solution.",
+    simple:
+      "MODE: SIMPLE EXPLANATION — Use plain everyday language, relatable analogies, minimal jargon, and simple short sentences.",
+    summarize:
+      "MODE: SUMMARIZE — Provide a dense, high-yield summary highlighting core principles, key formulas, and main takeaways.",
+    notes:
+      "MODE: REVISION NOTES — Provide exam-ready notes with headings, bullet points, key formulas, memory hooks, and summary tables.",
+  };
+
+  sections.push(modeInstructions[mode] || modeInstructions.explain);
+
   const depthRule =
     analysis.depth === "beginner"
       ? "Explain like I am new to this. Simple words, an analogy, and a tiny concrete example. No jargon without defining it."
@@ -125,11 +146,10 @@ function buildSystemPrompt(args: {
   const outputRules = [
     "Format with clean Markdown: headings, bold, bullet lists, and ```code fences with a language tag for any code.",
     "Answer the exact question first — no filler introductions, no \"Sure, here's...\".",
-    "Never invent sources, URLs, PDFs, or YouTube links.",
+    "Never invent fake sources, broken URLs, or dummy links.",
     "If unsure, say so briefly instead of bluffing.",
-    "Match answer length to the requested marks or to how much the student asked for — do not pad.",
-    "For programming answers: approach → clean code → complexity analysis.",
-    "End with ONE short, relevant follow-up question or offer — except in quiz/MCQ/teach mode where you wait for the student's answer.",
+    "Match answer length to requested marks or student query intent.",
+    "For code: output clean, compilable, syntax-valid code inside code fences.",
   ];
   sections.push(`Output rules:\n${outputRules.map((r) => `- ${r}`).join("\n")}`);
 

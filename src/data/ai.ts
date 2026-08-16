@@ -4,11 +4,15 @@ import {
   AlignLeft,
   Brain,
   Bug,
+  Code2,
+  FileCode,
   FileText,
   GraduationCap,
+  Rocket,
   Smile,
   StickyNote,
   Target,
+  UserCheck,
 } from "lucide-react";
 import {
   algorithmComplexity,
@@ -45,11 +49,13 @@ import {
 
 export type StudyModeId =
   | "explain"
+  | "code"
   | "exam"
-  | "simple"
-  | "practice"
   | "quiz"
+  | "interview"
+  | "project"
   | "debug"
+  | "simple"
   | "summarize"
   | "notes";
 
@@ -61,14 +67,16 @@ export interface StudyMode {
 }
 
 export const aiStudyModes: StudyMode[] = [
-  { id: "explain", label: "Explain", description: "Clear, step-by-step explanation", icon: FileText },
-  { id: "simple", label: "Simple", description: "Plain-language, no jargon", icon: Smile },
-  { id: "exam", label: "Exam answer", description: "Structured answer for exams", icon: GraduationCap },
-  { id: "practice", label: "Practice", description: "Practice questions with hints", icon: Target },
-  { id: "quiz", label: "Quiz me", description: "One question at a time", icon: Brain },
-  { id: "debug", label: "Debug code", description: "Find the bug in your code", icon: Bug },
-  { id: "summarize", label: "Summarize", description: "Key points in a few lines", icon: AlignLeft },
-  { id: "notes", label: "Notes", description: "Revision notes you can copy", icon: StickyNote },
+  { id: "explain", label: "Learn", description: "Clear, step-by-step explanation from beginner to advanced", icon: FileText },
+  { id: "code", label: "Code", description: "Write, review, optimize & explain clean code", icon: Code2 },
+  { id: "exam", label: "Exam", description: "Structured 2, 5, or 10-mark exam answers & notes", icon: GraduationCap },
+  { id: "quiz", label: "Quiz", description: "Interactive questions, evaluation & feedback", icon: Brain },
+  { id: "interview", label: "Interview", description: "Simulated technical interview round with feedback", icon: UserCheck },
+  { id: "project", label: "Project", description: "Architecture, API design & milestone mentoring", icon: Rocket },
+  { id: "debug", label: "Debug", description: "Find syntax, logic & runtime errors with fixes", icon: Bug },
+  { id: "simple", label: "Simple", description: "Plain-language explanations with real-world analogies", icon: Smile },
+  { id: "summarize", label: "Summarize", description: "Key points & dense summaries", icon: AlignLeft },
+  { id: "notes", label: "Notes", description: "Exam-ready revision notes with formulas", icon: StickyNote },
 ];
 
 export const suggestedPrompts = [
@@ -151,11 +159,32 @@ function renderTopicAnswer(topic: TopicKnowledge, req: TutorRequest): string {
     );
   }
 
-  // Practice: fixed set, plus marks hint when given.
-  if (mode === "practice") {
-    const tag = marks ? `\n\nAim for a **${marks}-mark answer** on each — define, explain, and give an example.` : "";
+  if (mode === "code") {
+    const snip = codeSnippets[topic.id];
     return (
-      `**${title} — practice questions**\n\n${topic.practice.map((q, i) => `${i + 1}. ${q}`).join("\n")}${tag}\n\nSend me your answers and I'll correct each one. ${topic.followUp}`
+      `**${title} — Implementation & Algorithm** 💻\n\n` +
+      `**Approach:** ${topic.notes[0] || "Structured step-by-step implementation."}\n\n` +
+      `\`\`\`${snip?.lang || req.language || "cpp"}\n${snip?.code || "// Implementation code\n"}\`\`\`\n\n` +
+      `**Key Takeaway:** ${topic.notes[1] || topic.notes[0] || ""}\n\n${topic.followUp}`
+    );
+  }
+
+  if (mode === "interview") {
+    const q = interviewQuestions[topic.id]?.[0];
+    return (
+      `**Technical Interview Question — ${title}** 🎯\n\n` +
+      `**Question:** ${q || `Explain the core workflow, memory footprint, and time complexity of ${title}.`}\n\n` +
+      `*Attempt your answer below. I will evaluate your response, score it out of 10, highlight missing points, and provide the ideal solution!*`
+    );
+  }
+
+  if (mode === "project") {
+    return (
+      `**Project Mentor Blueprint — ${title}** 🚀\n\n` +
+      `1. **Milestones:** Requirements -> Architecture -> Implementation -> Deployment\n` +
+      `2. **Core System:** Integration of ${title}\n` +
+      `3. **Key APIs & Data Contracts:** REST/gRPC endpoint specifications\n` +
+      `4. **Security & Performance:** Edge cases and authentication considerations\n\n${topic.followUp}`
     );
   }
 
@@ -313,8 +342,8 @@ function renderMcqSet(subjectId: string, count = 3): string | undefined {
   if (!mcqs) return undefined;
   const body = mcqs
     .map((m, i) => {
-      const opts = m.options.map((o, j) => `${String.fromCharCode(65 + j)}) ${o}`).join("\n   ");
-      return `${i + 1}. ${m.q}\n   ${opts}`;
+      const opts = m.options.map((o, j) => `${String.fromCharCode(65 + j)}) ${o}`).join("\n");
+      return `**${i + 1}. ${m.q}**\n${opts}`;
     })
     .join("\n\n");
   return (
@@ -375,17 +404,30 @@ function renderSubjectAnswer(subject: CsSubject, req: TutorRequest): string {
         `Want a practice question on **${topics[0] ?? name}** or a 5-minute quiz?`
       );
     }
-    case "practice":
+    case "code":
       return (
-        `**${name} — Practice Set** 🎯\n\n` +
-        `1. **Conceptual**: Define ${topics[0] ?? name} and state its main objective.\n` +
-        `2. **Application**: Solve a scenario using ${topics[1] ?? topics[0] ?? "core algorithms"} step-by-step.\n` +
-        `3. **Analysis**: What are the top 3 mistakes students make when solving ${name} problems?\n` +
-        `4. **Challenge**: How does ${topics[0] ?? name} interact with operating systems or memory management?\n\n` +
-        `Reply with your solutions and I'll mark each one with feedback!`
+        `**${name} — Coding Blueprint & Examples** 💻\n\n` +
+        `**Overview:** ${subject.short}\n\n` +
+        `**Core Algorithms & Topics:**\n${topics.map((t) => `• \`${t}\``).join("\n")}\n\n` +
+        `Ask for code in **C**, **C++**, **Java**, **Python**, **JavaScript**, **TypeScript**, or **SQL**!`
+      );
+    case "interview":
+      return (
+        `**${name} — Technical Interview Preparation** 🎯\n\n` +
+        `1. **Core Question**: What are the primary trade-offs and complexity guarantees of ${topics[0] ?? name}?\n` +
+        `2. **System Design**: How would you leverage ${name} in a high-scale distributed system?\n\n` +
+        `*Send your answer to begin the simulated interview evaluation!*`
+      );
+    case "project":
+      return (
+        `**${name} — Project Mentor Guidance** 🚀\n\n` +
+        `1. **Project Scope:** Build a production application utilizing ${name}.\n` +
+        `2. **Tech Stack:** Frontend, Backend, Database & Cache selection.\n` +
+        `3. **Milestones:** MVP -> Auth -> Core Feature -> Deployment.\n\n` +
+        `What project concept are you building?`
       );
     case "quiz":
-      return renderMcqSet(subject.id, 3) ?? renderSubjectAnswer(subject, { ...req, mode: "practice" });
+      return renderMcqSet(subject.id, 3) ?? renderSubjectAnswer(subject, { ...req, mode: "explain" });
     case "summarize":
       return (
         `**Summary — ${name}** 📌\n\n${subject.short}\n\n${subject.about}\n\n` +
@@ -564,23 +606,22 @@ export function mockAiReply(userMessage: string, options: AiReplyOptions): strin
     }
 
     case "gate":
-    case "mcq": {
-      const subject = req.subject;
-      const count = requestedCount(userMessage);
-      const set = subject
-        ? renderMcqSet(subject.id, count)
-        : renderMcqSet(getCsSubject("dsa")?.id ?? "dsa", count);
-      if (set) return set;
-      break;
-    }
-
+    case "mcq":
     case "quiz": {
+      const count = requestedCount(userMessage);
       const weakId = profile.weakSubjectIds
         .map((id) => id.replace(/^sub-/, ""))
         .find((id) => getCsSubject(id));
-      const subject = weakId ? getCsSubject(weakId) : undefined;
-      if (subject && mcqBank[subject.id]) {
-        return renderMcqSet(subject.id, 3) ?? renderSubjectAnswer(subject, { ...req, mode: "practice" });
+      const targetSubject = req.subject ?? (weakId ? getCsSubject(weakId) : undefined) ?? getCsSubject("dsa");
+
+      if (targetSubject && mcqBank[targetSubject.id]) {
+        return renderMcqSet(targetSubject.id, count) ?? renderSubjectAnswer(targetSubject, { ...req, mode: "explain" });
+      }
+      if (targetSubject) {
+        return renderSubjectAnswer(targetSubject, { ...req, mode: "quiz" });
+      }
+      if (req.topic) {
+        return quizQuestion(req.topic);
       }
       return quizQuestion(knowledgeBase[quizCounter % knowledgeBase.length]);
     }

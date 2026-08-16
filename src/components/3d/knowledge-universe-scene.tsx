@@ -21,427 +21,634 @@ interface CoursePlanetData {
   description: string;
   href: string;
   radius: number;
-  a: number; // Orbit radius X
-  b: number; // Orbit radius Z
-  speed: number;
-  initialAngle: number;
+  orbitRadius: number; // Circular orbit radius around central Sun
+  speed: number; // Orbital revolving speed
+  initialAngle: number; // Starting angle on circular orbit
   color: string;
-  textureType: "dsa" | "webdev" | "ai" | "cloud" | "security" | "physics" | "maths" | "english";
+  atmosphereColor: string;
+  textureType:
+    | "sun"
+    | "dsa"
+    | "webdev"
+    | "ai"
+    | "cloud"
+    | "security"
+    | "physics"
+    | "maths"
+    | "english";
   hasRings?: boolean;
 }
 
-// Star positions generated once at module load
-const STAR_POSITIONS = (() => {
-  const count = 380;
-  const positions = new Float32Array(count * 3);
-  for (let i = 0; i < count; i += 1) {
-    positions[i * 3] = (Math.random() - 0.5) * 34;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 22;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 18 - 2;
-  }
-  return positions;
-})();
-
-function useIsMobile() {
-  return typeof window !== "undefined" && window.innerWidth < 768;
+// Custom Fresnel Shader for Realistic Atmospheric Scattering Rim Glow
+function createAtmosphereMaterial(color: string, coefficient = 0.5, power = 3.5) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      color: { value: new THREE.Color(color) },
+      coefficient: { value: coefficient },
+      power: { value: power },
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vNormal;
+      uniform vec3 color;
+      uniform float coefficient;
+      uniform float power;
+      void main() {
+        float intensity = pow(coefficient - dot(vNormal, vec3(0.0, 0.0, 1.0)), power);
+        gl_FragColor = vec4(color, clamp(intensity, 0.0, 1.0));
+      }
+    `,
+    blending: THREE.AdditiveBlending,
+    side: THREE.BackSide,
+    transparent: true,
+    depthWrite: false,
+  });
 }
 
-// Procedural 3D CGI planet textures
-function createSunTexture() {
+// High-Detail Procedural PBR Texture Generators
+function createSunTexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  const grad = ctx.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, "#4a0000");
+  grad.addColorStop(0.2, "#cf2a00");
+  grad.addColorStop(0.5, "#ff6a00");
+  grad.addColorStop(0.8, "#ffaa00");
+  grad.addColorStop(1, "#520000");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 512);
+
+  for (let i = 0; i < 350; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const r = Math.random() * 35 + 8;
+    const alpha = Math.random() * 0.45 + 0.15;
+    ctx.fillStyle = i % 4 === 0 ? `rgba(255, 255, 200, ${alpha})` : `rgba(255, 120, 0, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "rgba(70, 10, 0, 0.65)";
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const rx = Math.random() * 45 + 12;
+    const ry = Math.random() * 20 + 6;
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createDSATexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.fillStyle = "#0f0c29";
+  ctx.fillRect(0, 0, 1024, 512);
+
+  ctx.fillStyle = "#302b63";
+  for (let i = 0; i < 65; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const r = Math.random() * 80 + 35;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "rgba(168, 85, 247, 0.4)";
+  ctx.lineWidth = 2.5;
+  for (let i = 0; i < 40; i++) {
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * 1024, Math.random() * 512);
+    ctx.lineTo(Math.random() * 1024, Math.random() * 512);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "#c084fc";
+  for (let i = 0; i < 80; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * 1024, Math.random() * 512, Math.random() * 3.5 + 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createWebDevTexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  const colors = [
+    "#7c2d12",
+    "#9a3412",
+    "#c2410c",
+    "#ea580c",
+    "#f97316",
+    "#fdba74",
+    "#431407",
+    "#ea580c",
+    "#9a3412",
+    "#f97316",
+  ];
+
+  const bandHeight = 512 / colors.length;
+  colors.forEach((color, idx) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(0, idx * bandHeight, 1024, bandHeight + 2);
+  });
+
+  for (let i = 0; i < 180; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const rx = Math.random() * 90 + 20;
+    const ry = Math.random() * 14 + 4;
+    ctx.fillStyle = i % 2 === 0 ? "rgba(255, 237, 213, 0.25)" : "rgba(124, 45, 18, 0.35)";
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, Math.random() * 0.2 - 0.1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "#991b1b";
+  ctx.beginPath();
+  ctx.ellipse(650, 320, 85, 42, -0.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#fca5a5";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createAITexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.fillStyle = "#2e1065";
+  ctx.fillRect(0, 0, 1024, 512);
+
+  ctx.fillStyle = "#701a75";
+  for (let i = 0; i < 70; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const r = Math.random() * 90 + 30;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "rgba(244, 114, 182, 0.6)";
+  for (let i = 0; i < 60; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * 1024, Math.random() * 512, Math.random() * 8 + 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createCloudDevOpsTexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  const grad = ctx.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, "#0c4a6e");
+  grad.addColorStop(0.3, "#0284c7");
+  grad.addColorStop(0.6, "#38bdf8");
+  grad.addColorStop(1, "#075985");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 512);
+
+  ctx.fillStyle = "rgba(224, 242, 254, 0.4)";
+  for (let i = 0; i < 120; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const rx = Math.random() * 120 + 40;
+    const ry = Math.random() * 8 + 2;
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createSecurityTexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.fillStyle = "#18181b";
+  ctx.fillRect(0, 0, 1024, 512);
+
+  ctx.fillStyle = "#7f1d1d";
+  for (let i = 0; i < 80; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const r = Math.random() * 70 + 20;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "#ef4444";
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 30; i++) {
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * 1024, Math.random() * 512);
+    ctx.lineTo(Math.random() * 1024, Math.random() * 512);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createPhysicsTexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.fillStyle = "#0f766e";
+  ctx.fillRect(0, 0, 1024, 512);
+
+  ctx.fillStyle = "#042f2e";
+  for (let i = 0; i < 50; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const r = Math.random() * 85 + 25;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "rgba(204, 251, 241, 0.35)";
+  for (let i = 0; i < 90; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    ctx.beginPath();
+    ctx.arc(x, y, Math.random() * 30 + 10, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createMathsTexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.fillStyle = "#14532d";
+  ctx.fillRect(0, 0, 1024, 512);
+
+  ctx.fillStyle = "#22c55e";
+  for (let i = 0; i < 70; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * 1024, Math.random() * 512, Math.random() * 60 + 15, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createEnglishTexture(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.fillStyle = "#78350f";
+  ctx.fillRect(0, 0, 1024, 512);
+
+  ctx.fillStyle = "#f59e0b";
+  for (let i = 0; i < 70; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * 1024, Math.random() * 512, Math.random() * 60 + 15, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createPlanetBumpMap(): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.fillStyle = "#808080";
+  ctx.fillRect(0, 0, 512, 256);
+
+  for (let i = 0; i < 120; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 256;
+    const r = Math.random() * 25 + 4;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, "#ffffff");
+    grad.addColorStop(0.7, "#666666");
+    grad.addColorStop(1, "#808080");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createSaturnRingTexture(): THREE.CanvasTexture | null {
   if (typeof document === "undefined") return null;
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  const grad = ctx.createRadialGradient(256, 256, 10, 256, 256, 256);
-  grad.addColorStop(0, "#ffffff");
-  grad.addColorStop(0.15, "#fff066");
-  grad.addColorStop(0.4, "#ff8c00");
-  grad.addColorStop(0.75, "#e63900");
-  grad.addColorStop(1, "#800000");
+
+  const grad = ctx.createRadialGradient(256, 256, 40, 256, 256, 256);
+  grad.addColorStop(0, "rgba(0,0,0,0)");
+  grad.addColorStop(0.35, "rgba(224, 231, 255, 0.85)");
+  grad.addColorStop(0.48, "rgba(56, 189, 248, 0.95)");
+  grad.addColorStop(0.55, "rgba(15, 23, 42, 0.1)");
+  grad.addColorStop(0.65, "rgba(125, 211, 252, 0.85)");
+  grad.addColorStop(0.85, "rgba(56, 189, 248, 0.4)");
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 512, 512);
 
-  ctx.fillStyle = "rgba(255, 230, 160, 0.35)";
-  for (let i = 0; i < 70; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 512;
-    const r = Math.random() * 22 + 4;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  return new THREE.CanvasTexture(canvas);
+  const texture = new THREE.CanvasTexture(canvas);
+  return texture;
 }
 
-function createDSATexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.fillStyle = "#1e1b4b";
-  ctx.fillRect(0, 0, 512, 256);
-  ctx.fillStyle = "#6b21a8";
-  for (let i = 0; i < 30; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 256;
-    const r = Math.random() * 40 + 15;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.strokeStyle = "rgba(192, 132, 252, 0.6)";
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 15; i++) {
-    ctx.beginPath();
-    ctx.moveTo(Math.random() * 512, Math.random() * 256);
-    ctx.lineTo(Math.random() * 512, Math.random() * 256);
-    ctx.stroke();
-  }
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createWebDevTexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const bands = ["#ea580c", "#f97316", "#fdba74", "#7c2d12", "#c2410c", "#fed7aa"];
-  const h = 256 / bands.length;
-  bands.forEach((color, i) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(0, i * h, 512, h + 1);
-  });
-  ctx.fillStyle = "#9a3412";
-  ctx.beginPath();
-  ctx.ellipse(320, 150, 45, 24, 0, 0, Math.PI * 2);
-  ctx.fill();
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createAITexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.fillStyle = "#4a044e";
-  ctx.fillRect(0, 0, 512, 256);
-  ctx.fillStyle = "#831843";
-  for (let i = 0; i < 25; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 256;
-    ctx.beginPath();
-    ctx.arc(x, y, Math.random() * 30 + 10, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.fillStyle = "rgba(240, 171, 252, 0.5)";
-  for (let i = 0; i < 20; i++) {
-    ctx.beginPath();
-    ctx.arc(Math.random() * 512, Math.random() * 256, 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createCloudDevOpsTexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const bands = ["#0284c7", "#38bdf8", "#7dd3fc", "#0369a1", "#075985", "#bae6fd"];
-  const h = 256 / bands.length;
-  bands.forEach((color, i) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(0, i * h, 512, h + 1);
-  });
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createSecurityTexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.fillStyle = "#450a0a";
-  ctx.fillRect(0, 0, 512, 256);
-  ctx.fillStyle = "#dc2626";
-  for (let i = 0; i < 35; i++) {
-    const x = Math.random() * 512;
-    const y = Math.random() * 256;
-    ctx.beginPath();
-    ctx.arc(x, y, Math.random() * 28 + 8, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createPhysicsTexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.fillStyle = "#0d9488";
-  ctx.fillRect(0, 0, 512, 256);
-  ctx.fillStyle = "#10b981";
-  for (let i = 0; i < 28; i++) {
-    ctx.beginPath();
-    ctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 32 + 12, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.fillStyle = "rgba(204, 251, 241, 0.7)";
-  ctx.fillRect(0, 0, 512, 25);
-  ctx.fillRect(0, 231, 512, 25);
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createMathsTexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.fillStyle = "#064e3b";
-  ctx.fillRect(0, 0, 512, 256);
-  ctx.fillStyle = "#22c55e";
-  for (let i = 0; i < 30; i++) {
-    ctx.beginPath();
-    ctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 30 + 10, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createEnglishTexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.fillStyle = "#78350f";
-  ctx.fillRect(0, 0, 512, 256);
-  ctx.fillStyle = "#f59e0b";
-  for (let i = 0; i < 30; i++) {
-    ctx.beginPath();
-    ctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 32 + 10, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  return new THREE.CanvasTexture(canvas);
-}
-
-function createSaturnRingTexture() {
-  if (typeof document === "undefined") return null;
-  const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const grad = ctx.createRadialGradient(128, 128, 30, 128, 128, 128);
-  grad.addColorStop(0, "rgba(0,0,0,0)");
-  grad.addColorStop(0.35, "rgba(215, 185, 140, 0.85)");
-  grad.addColorStop(0.55, "rgba(120, 95, 65, 0.15)");
-  grad.addColorStop(0.75, "rgba(230, 200, 155, 0.9)");
-  grad.addColorStop(0.92, "rgba(180, 150, 110, 0.4)");
-  grad.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 256, 256);
-  return new THREE.CanvasTexture(canvas);
-}
-
-// Map actual project course data directly to 3D course planets
+// Planets revolving around central Sun in concentric circular orbits (compact scaled dimensions)
 const COURSE_PLANETS: CoursePlanetData[] = [
+  {
+    id: "c-codezen-core",
+    name: "CodeZen Universal Core",
+    shortName: "CodeZen Core",
+    subtitle: "Universal Platform",
+    description: "AI-powered adaptive learning engine covering all levels.",
+    href: "/explore",
+    radius: 0.62,
+    orbitRadius: 0,
+    speed: 0,
+    initialAngle: 0,
+    color: "#ff5500",
+    atmosphereColor: "#ffaa00",
+    textureType: "sun",
+  },
+  {
+    id: "c-maths-foundations",
+    name: "Mathematics & Geometry",
+    shortName: "Maths & Geometry",
+    subtitle: "Class 1 - 10",
+    description: "Numbers, algebra, vectors, and foundational calculus.",
+    href: "/courses/c-quadratic-equations",
+    radius: 0.2,
+    orbitRadius: 1.4,
+    speed: 0.24,
+    initialAngle: 0.2,
+    color: "#22c55e",
+    atmosphereColor: "#4ade80",
+    textureType: "maths",
+  },
+  {
+    id: "c-security-crypto",
+    name: "Cybersecurity & Cryptography",
+    shortName: "Cybersecurity",
+    subtitle: "Advanced",
+    description: "Encryption, hashing, and zero-trust security architecture.",
+    href: "/courses/c-security",
+    radius: 0.24,
+    orbitRadius: 2.1,
+    speed: 0.19,
+    initialAngle: 1.6,
+    color: "#ef4444",
+    atmosphereColor: "#f87171",
+    textureType: "security",
+  },
   {
     id: "c-dsa-foundations",
     name: "Data Structures & Algorithms",
-    shortName: "Data Structures",
-    subtitle: "Advanced",
-    description: "Trees, graphs & fundamental computer science patterns.",
+    shortName: "DSA",
+    subtitle: "Undergraduate / BTech",
+    description: "Trees, graphs, dynamic programming, and algorithm optimization.",
     href: "/courses/c-dsa-foundations",
-    radius: 0.38,
-    a: 2.2,
-    b: 2.2,
-    speed: 0.18,
-    initialAngle: 0.4,
+    radius: 0.28,
+    orbitRadius: 2.8,
+    speed: 0.15,
+    initialAngle: 3.1,
     color: "#a855f7",
+    atmosphereColor: "#c084fc",
     textureType: "dsa",
+  },
+  {
+    id: "c-cloud-devops",
+    name: "Cloud Computing & DevOps",
+    shortName: "Cloud & DevOps",
+    subtitle: "Advanced",
+    description: "Docker, Kubernetes, microservices, and CI/CD pipelines.",
+    href: "/courses/c-cloud-devops",
+    radius: 0.32,
+    orbitRadius: 3.5,
+    speed: 0.12,
+    initialAngle: 4.5,
+    color: "#38bdf8",
+    atmosphereColor: "#7dd3fc",
+    textureType: "cloud",
+    hasRings: true,
   },
   {
     id: "c-webdev-fullstack",
     name: "Full-Stack Web Development",
     shortName: "Full-Stack Web Dev",
     subtitle: "Intermediate",
-    description: "From React hooks to production cloud deployments.",
+    description: "Modern Next.js, React, Node.js, and cloud deployment.",
     href: "/courses/c-webdev-fullstack",
-    radius: 0.52,
-    a: 3.4,
-    b: 3.4,
-    speed: 0.14,
-    initialAngle: 2.1,
+    radius: 0.34,
+    orbitRadius: 4.2,
+    speed: 0.095,
+    initialAngle: 0.8,
     color: "#f97316",
+    atmosphereColor: "#fb923c",
     textureType: "webdev",
   },
   {
     id: "c-deep-learning",
-    name: "Advanced Neural Networks",
-    shortName: "AI & Neural Networks",
-    subtitle: "Expert",
-    description: "Backpropagation to attention & modern AI architectures.",
+    name: "AI & Neural Networks",
+    shortName: "AI & Deep Learning",
+    subtitle: "MTech & Research",
+    description: "Transformers, PyTorch, backpropagation, and LLM fine-tuning.",
     href: "/courses/c-deep-learning",
-    radius: 0.44,
-    a: 4.6,
-    b: 4.6,
-    speed: 0.10,
-    initialAngle: 4.1,
+    radius: 0.27,
+    orbitRadius: 4.9,
+    speed: 0.075,
+    initialAngle: 2.4,
     color: "#ec4899",
+    atmosphereColor: "#f472b6",
     textureType: "ai",
   },
   {
-    id: "c-cloud-devops",
-    name: "Cloud & DevOps Essentials",
-    shortName: "Cloud & DevOps",
-    subtitle: "Advanced",
-    description: "Docker, Kubernetes & modern CI/CD infrastructure.",
-    href: "/courses/c-cloud-devops",
-    radius: 0.46,
-    a: 5.8,
-    b: 5.8,
-    speed: 0.075,
-    initialAngle: 1.2,
-    color: "#0284c7",
-    textureType: "cloud",
-    hasRings: true,
-  },
-  {
-    id: "c-security",
-    name: "Cybersecurity: Cryptography",
-    shortName: "Cybersecurity",
-    subtitle: "Advanced",
-    description: "Encryption, hashing & secure network architecture.",
-    href: "/courses/c-security",
-    radius: 0.35,
-    a: 7.0,
-    b: 7.0,
-    speed: 0.055,
-    initialAngle: 3.5,
-    color: "#ef4444",
-    textureType: "security",
-  },
-  {
-    id: "c-light-reflections",
-    name: "Light & Reflection",
-    shortName: "Physics & Light",
-    subtitle: "Beginner",
-    description: "How light travels, shadows & optical physics.",
+    id: "c-physics-quantum",
+    name: "Physics & Optics",
+    shortName: "Physics & Optics",
+    subtitle: "Class 10 - Undergraduate",
+    description: "Light, electromagnetism, optics, and quantum fundamentals.",
     href: "/courses/c-light-reflections",
-    radius: 0.28,
-    a: 8.2,
-    b: 8.2,
-    speed: 0.04,
-    initialAngle: 5.3,
+    radius: 0.21,
+    orbitRadius: 5.6,
+    speed: 0.055,
+    initialAngle: 5.0,
     color: "#14b8a6",
+    atmosphereColor: "#2dd4bf",
     textureType: "physics",
-  },
-  {
-    id: "c-quadratic-equations",
-    name: "Quadratic Equations Masterclass",
-    shortName: "Quadratic Equations",
-    subtitle: "Intermediate",
-    description: "Factorisation, quadratic formula & roots of equations.",
-    href: "/courses/c-quadratic-equations",
-    radius: 0.32,
-    a: 9.4,
-    b: 9.4,
-    speed: 0.028,
-    initialAngle: 0.8,
-    color: "#84cc16",
-    textureType: "maths",
-  },
-  {
-    id: "c-english-class5",
-    name: "English Grammar Foundations",
-    shortName: "English Grammar",
-    subtitle: "Beginner",
-    description: "Sentence building, parts of speech & literacy skills.",
-    href: "/courses/c-english-class5",
-    radius: 0.26,
-    a: 10.6,
-    b: 10.6,
-    speed: 0.02,
-    initialAngle: 2.8,
-    color: "#f59e0b",
-    textureType: "english",
   },
 ];
 
-function OrbitLine({ a, b }: { a: number; b: number }) {
+// Concentric Circular Orbit Rings centered around the Sun (0, 0, 0)
+function OrbitRing({ radius }: { radius: number }) {
   const lineObject = useMemo(() => {
     const points: THREE.Vector3[] = [];
     const segments = 128;
     for (let i = 0; i <= segments; i++) {
       const theta = (i / segments) * Math.PI * 2;
-      points.push(new THREE.Vector3(Math.cos(theta) * a, 0, Math.sin(theta) * b));
+      points.push(new THREE.Vector3(Math.cos(theta) * radius, 0, Math.sin(theta) * radius));
     }
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const material = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.14,
+      opacity: 0.2,
     });
     return new THREE.LineLoop(geometry, material);
-  }, [a, b]);
+  }, [radius]);
 
   return <primitive object={lineObject} />;
 }
 
-function SunNode() {
+function SunNode({ planet }: { planet: CoursePlanetData }) {
   const sunTexture = useMemo(() => createSunTexture(), []);
+  const bumpMap = useMemo(() => createPlanetBumpMap(), []);
   const coreRef = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
+  const atmosphereRef = useRef<THREE.Mesh>(null);
+
+  const atmosphereMat = useMemo(
+    () => createAtmosphereMaterial(planet.atmosphereColor, 0.65, 3.0),
+    [planet.atmosphereColor]
+  );
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (coreRef.current) {
-      coreRef.current.rotation.y = t * 0.06;
+      coreRef.current.rotation.y = t * 0.04;
     }
-    if (glowRef.current) {
-      glowRef.current.scale.setScalar(1.22 + Math.sin(t * 2.2) * 0.04);
+    if (atmosphereRef.current) {
+      atmosphereRef.current.scale.setScalar(1.2 + Math.sin(t * 1.8) * 0.02);
     }
   });
 
   return (
     <group position={[0, 0, 0]}>
-      {/* Sun Core */}
+      {/* Central Sun / Core Celestial Body at exact center */}
       <mesh ref={coreRef}>
-        <sphereGeometry args={[0.78, 48, 48]} />
-        <meshBasicMaterial map={sunTexture || undefined} color="#ff9900" />
+        <sphereGeometry args={[planet.radius, 64, 64]} />
+        <meshStandardMaterial
+          map={sunTexture || undefined}
+          bumpMap={bumpMap || undefined}
+          bumpScale={0.06}
+          emissive="#ff3300"
+          emissiveIntensity={0.65}
+          roughness={0.4}
+          metalness={0.1}
+        />
       </mesh>
 
-      {/* Sun Glow Aura */}
-      <mesh ref={glowRef}>
-        <sphereGeometry args={[0.92, 32, 32]} />
-        <meshBasicMaterial color="#ff7700" transparent opacity={0.28} side={THREE.BackSide} />
+      {/* Atmospheric Scattering Rim Glow */}
+      <mesh ref={atmosphereRef} material={atmosphereMat}>
+        <sphereGeometry args={[planet.radius * 1.16, 48, 48]} />
       </mesh>
 
-      <pointLight position={[0, 0, 0]} intensity={2.8} color="#ffaa33" distance={30} decay={1} />
+      {/* Point light emitting light onto all revolving planets */}
+      <pointLight position={[0, 0, 0]} intensity={3.5} color="#ffaa44" distance={30} decay={0.8} />
 
-      {/* CODEZEN Title */}
-      <Html position={[0, 1.4, 0]} center style={{ pointerEvents: "none" }} distanceFactor={8}>
-        <div className="pointer-events-none whitespace-nowrap text-sm font-extrabold tracking-[0.45em] text-white drop-shadow-[0_2px_12px_rgba(255,140,0,0.95)]">
-          C O D E Z E N
+      {/* CODEZEN Title Positioned Horizontally Above Central Sun */}
+      <Html
+        position={[0, planet.radius + 0.65, 0]}
+        center
+        style={{ pointerEvents: "none", whiteSpace: "nowrap", width: "max-content" }}
+        distanceFactor={7}
+      >
+        <div
+          className="pointer-events-none select-none text-center"
+          style={{ whiteSpace: "nowrap", width: "max-content" }}
+        >
+          <span className="text-xs sm:text-sm font-extrabold tracking-[0.55em] text-white drop-shadow-[0_0_12px_rgba(255,170,0,0.95)]">
+            C O D E Z E N
+          </span>
         </div>
       </Html>
     </group>
@@ -451,11 +658,13 @@ function SunNode() {
 function CoursePlanetNode({
   planet,
   saturnRingTexture,
+  bumpMap,
   onHover,
   reducedMotion,
 }: {
   planet: CoursePlanetData;
   saturnRingTexture: THREE.CanvasTexture | null;
+  bumpMap: THREE.CanvasTexture | null;
   onHover: (info: NodeInfo | null) => void;
   reducedMotion: boolean;
 }) {
@@ -488,32 +697,37 @@ function CoursePlanetNode({
     }
   }, [planet.textureType]);
 
+  const atmosphereMat = useMemo(
+    () => createAtmosphereMaterial(planet.atmosphereColor, 0.55, 3.2),
+    [planet.atmosphereColor]
+  );
+
   useFrame((_, delta) => {
+    // 3D Circular Orbital Revolution around the central Sun
     if (!reducedMotion) {
       angleRef.current += delta * planet.speed;
     }
-    const x = Math.cos(angleRef.current) * planet.a;
-    const z = Math.sin(angleRef.current) * planet.b;
+
+    const x = Math.cos(angleRef.current) * planet.orbitRadius;
+    const z = Math.sin(angleRef.current) * planet.orbitRadius;
 
     if (groupRef.current) {
       groupRef.current.position.set(x, 0, z);
     }
+
+    // Planet self-rotation
     if (meshRef.current) {
       if (!reducedMotion) {
-        meshRef.current.rotation.y += delta * 0.25;
+        meshRef.current.rotation.y += delta * 0.3;
       }
-      const targetScale = hovered ? 1.35 : 1;
+      const targetScale = hovered ? 1.25 : 1;
       meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
-    }
-    if (atmosphereRef.current) {
-      const targetScale = hovered ? 1.45 : 1.08;
-      atmosphereRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
     }
   });
 
   return (
     <group ref={groupRef}>
-      {/* Realistic Planet Sphere */}
+      {/* Planet Sphere */}
       <mesh
         ref={meshRef}
         onPointerOver={(e) => {
@@ -540,43 +754,46 @@ function CoursePlanetNode({
         <sphereGeometry args={[planet.radius, 48, 48]} />
         <meshStandardMaterial
           map={texture || undefined}
+          bumpMap={bumpMap || undefined}
+          bumpScale={0.04}
           color={texture ? "#ffffff" : planet.color}
-          roughness={0.55}
+          roughness={0.45}
           metalness={0.15}
           emissive={planet.color}
-          emissiveIntensity={hovered ? 0.6 : 0.12}
+          emissiveIntensity={hovered ? 0.45 : 0.08}
         />
       </mesh>
 
       {/* Atmospheric Rim Glow */}
-      <mesh ref={atmosphereRef}>
-        <sphereGeometry args={[planet.radius * 1.08, 32, 32]} />
-        <meshBasicMaterial
-          color={planet.color}
-          transparent
-          opacity={hovered ? 0.35 : 0.15}
-          side={THREE.BackSide}
-        />
+      <mesh ref={atmosphereRef} material={atmosphereMat}>
+        <sphereGeometry args={[planet.radius * 1.14, 36, 36]} />
       </mesh>
 
-      {/* Saturn Rings */}
+      {/* Saturn Ring System */}
       {planet.hasRings && (
         <mesh rotation-x={Math.PI * 0.45}>
-          <ringGeometry args={[planet.radius * 1.3, planet.radius * 2.3, 64]} />
+          <ringGeometry args={[planet.radius * 1.35, planet.radius * 2.3, 64]} />
           <meshBasicMaterial
             map={saturnRingTexture || undefined}
-            color="#e2c8a0"
             side={THREE.DoubleSide}
             transparent
-            opacity={0.8}
+            opacity={0.88}
           />
         </mesh>
       )}
 
-      {/* Course Name Label — Revealed ONLY on Cursor Hover */}
+      {/* Hover Tooltip */}
       {hovered && (
-        <Html position={[0, planet.radius + 0.38, 0]} center style={{ pointerEvents: "none" }} distanceFactor={9}>
-          <div className="pointer-events-none whitespace-nowrap rounded-lg border border-primary/40 bg-card/95 px-3 py-1.5 text-xs font-bold text-white shadow-xl backdrop-blur-md">
+        <Html
+          position={[0, planet.radius + 0.35, 0]}
+          center
+          style={{ pointerEvents: "none", whiteSpace: "nowrap", width: "max-content" }}
+          distanceFactor={8}
+        >
+          <div
+            className="pointer-events-none select-none rounded-xl border border-white/20 bg-black/85 px-3 py-1.5 text-xs font-bold text-white shadow-2xl backdrop-blur-lg"
+            style={{ whiteSpace: "nowrap", width: "max-content" }}
+          >
             <div>{planet.name}</div>
             <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">
               {planet.subtitle} · Click to explore
@@ -588,23 +805,56 @@ function CoursePlanetNode({
   );
 }
 
-function DeepSpaceStarfield() {
+// Starfield position and color buffers generated once at module load
+const STAR_DATA = (() => {
+  const count = 1400;
+  const pos = new Float32Array(count * 3);
+  const col = new Float32Array(count * 3);
+  const palette = [
+    new THREE.Color("#ffffff"),
+    new THREE.Color("#cbd5e1"),
+    new THREE.Color("#a78bfa"),
+    new THREE.Color("#38bdf8"),
+    new THREE.Color("#fde047"),
+  ];
+
+  for (let i = 0; i < count; i++) {
+    pos[i * 3] = (Math.random() - 0.5) * 38;
+    pos[i * 3 + 1] = (Math.random() - 0.5) * 24;
+    pos[i * 3 + 2] = (Math.random() - 0.5) * 20 - 2;
+
+    const color = palette[Math.floor(Math.random() * palette.length)];
+    col[i * 3] = color.r;
+    col[i * 3 + 1] = color.g;
+    col[i * 3 + 2] = color.b;
+  }
+  return { positions: pos, colors: col };
+})();
+
+function RealisticStarfield() {
   const geometry = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(STAR_POSITIONS, 3));
+    g.setAttribute("position", new THREE.BufferAttribute(STAR_DATA.positions, 3));
+    g.setAttribute("color", new THREE.BufferAttribute(STAR_DATA.colors, 3));
     return g;
   }, []);
 
   const ref = useRef<THREE.Points>(null);
   useFrame((state) => {
     if (ref.current) {
-      ref.current.rotation.y = state.clock.getElapsedTime() * 0.005;
+      ref.current.rotation.y = state.clock.getElapsedTime() * 0.003;
     }
   });
 
   return (
     <points ref={ref} geometry={geometry}>
-      <pointsMaterial size={0.04} color="#a78bfa" transparent opacity={0.6} sizeAttenuation />
+      <pointsMaterial
+        size={0.035}
+        vertexColors
+        transparent
+        opacity={0.75}
+        sizeAttenuation
+      />
     </points>
   );
 }
@@ -616,53 +866,65 @@ export function KnowledgeUniverseScene({
   reducedMotion: boolean;
   onHover: (info: NodeInfo | null) => void;
 }) {
-  const isMobile = useIsMobile();
   const sceneGroupRef = useRef<THREE.Group>(null);
   const saturnRingTexture = useMemo(() => createSaturnRingTexture(), []);
+  const bumpMap = useMemo(() => createPlanetBumpMap(), []);
 
-  // Filter planets on mobile for performance & clarity
-  const activePlanets = useMemo(() => {
-    return isMobile ? COURSE_PLANETS.filter((_, i) => i % 2 === 0) : COURSE_PLANETS;
-  }, [isMobile]);
+  const sunPlanet = useMemo(
+    () => COURSE_PLANETS.find((p) => p.textureType === "sun")!,
+    []
+  );
+  const orbitingPlanets = useMemo(
+    () => COURSE_PLANETS.filter((p) => p.textureType !== "sun"),
+    []
+  );
 
   useFrame((state) => {
     if (sceneGroupRef.current && !reducedMotion) {
-      // Interactive mouse parallax depth shift (horizontal left/right only)
-      const targetY = state.pointer.x * 0.35;
+      // Gentle mouse parallax
+      const targetY = state.pointer.x * 0.15;
+      const targetX = -state.pointer.y * 0.08;
       sceneGroupRef.current.rotation.y = THREE.MathUtils.lerp(
         sceneGroupRef.current.rotation.y,
         targetY,
         0.05
       );
-      sceneGroupRef.current.rotation.x = 0;
+      sceneGroupRef.current.rotation.x = THREE.MathUtils.lerp(
+        sceneGroupRef.current.rotation.x,
+        targetX,
+        0.05
+      );
     }
   });
 
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 10, 10]} intensity={0.6} color="#ffffff" />
+      <ambientLight intensity={0.25} color="#1e1b4b" />
+      <directionalLight position={[10, 12, 12]} intensity={0.8} color="#ffffff" />
+      <directionalLight position={[-10, -5, -10]} intensity={0.15} color="#a855f7" />
 
-      <group ref={sceneGroupRef} scale={0.88}>
-        <SunNode />
+      <group ref={sceneGroupRef} scale={0.86}>
+        {/* Central Sun */}
+        <SunNode planet={sunPlanet} />
 
-        {/* Render Orbit Lines */}
-        {activePlanets.map((p) => (
-          <OrbitLine key={`orbit-${p.id}`} a={p.a} b={p.b} />
+        {/* Concentric Orbit Rings for Revolving Planets */}
+        {orbitingPlanets.map((p) => (
+          <OrbitRing key={`ring-${p.id}`} radius={p.orbitRadius} />
         ))}
 
-        {/* Render Orbiting Course Planets */}
-        {activePlanets.map((p) => (
+        {/* Revolving Planets */}
+        {orbitingPlanets.map((p) => (
           <CoursePlanetNode
             key={p.id}
             planet={p}
             saturnRingTexture={saturnRingTexture}
+            bumpMap={bumpMap}
             onHover={onHover}
             reducedMotion={reducedMotion}
           />
         ))}
 
-        <DeepSpaceStarfield />
+        <RealisticStarfield />
       </group>
     </>
   );
