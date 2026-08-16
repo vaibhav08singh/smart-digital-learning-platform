@@ -233,7 +233,7 @@ export function CodeEditor({
     <div className="relative flex h-full overflow-hidden rounded-xl border bg-[#0b1020]">
       {/* Line numbers gutter */}
       <div
-        className="w-12 shrink-0 select-none border-r border-slate-800/60 bg-[#080c18] py-4 pr-3 text-right font-mono text-[13px] leading-6 z-20"
+        className="w-12 shrink-0 select-none border-r border-slate-800/60 bg-[#080c18] py-4 pr-3 text-right font-mono text-[13px] leading-6 z-20 overflow-hidden"
         aria-hidden
       >
         <div style={{ transform: `translateY(${-scrollTop}px)` }}>
@@ -295,7 +295,7 @@ export function CodeEditor({
               transform: `translate(${-scrollLeft}px, ${-scrollTop}px)`,
             }}
           >
-            <pre className={cn("whitespace-pre text-slate-200", EDITOR_FONT)} style={FONT_STYLE}>{highlighted}</pre>
+            <pre className={cn("m-0 whitespace-pre text-slate-200", EDITOR_FONT)} style={FONT_STYLE}>{highlighted}</pre>
           </div>
         </div>
       </div>
