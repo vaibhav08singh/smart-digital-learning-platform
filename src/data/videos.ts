@@ -267,8 +267,8 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-ac-l1": { id: "v-ac-l1", youtubeId: "v1b5p08xHkY", title: "AC Voltage, Current & Phasor Diagrams", channel: "Organic Chemistry Tutor", duration: "25 min" },
   "tp-photo": { id: "v-photo-main", youtubeId: "ubkNGwGIK6Q", title: "The Photoelectric Effect Explained", channel: "Khan Academy", duration: "12 min" },
   "tp-photo-l1": { id: "v-photo-l1", youtubeId: "ubkNGwGIK6Q", title: "Photon Energy, Work Function & Threshold Frequency", channel: "Khan Academy", duration: "12 min" },
-  "tp-alkanes": { id: "v-alkanes-main", youtubeId: "Yw7uKkKzXGg", title: "Alkanes Structure and Properties", channel: "Organic Chemistry Tutor", duration: "18 min" },
-  "tp-alkanes-l1": { id: "v-alkanes-l1", youtubeId: "Yw7uKkKzXGg", title: "Saturated Hydrocarbons & Isomerism", channel: "Organic Chemistry Tutor", duration: "18 min" },
+  "tp-alkanes": { id: "v-alkanes-main", youtubeId: "U4S4k8Wb_yM", title: "Alkanes Structure and Properties", channel: "Tyler DeWitt", duration: "14 min" },
+  "tp-alkanes-l1": { id: "v-alkanes-l1", youtubeId: "U4S4k8Wb_yM", title: "Saturated Hydrocarbons & Isomerism", channel: "Tyler DeWitt", duration: "14 min" },
   "tp-mendel": { id: "v-mendel-main", youtubeId: "NWqgZUnJdAY", title: "Mendelian Genetics and Punnett Squares", channel: "Amoeba Sisters", duration: "9 min" },
   "tp-mendel-l1": { id: "v-mendel-l1", youtubeId: "NWqgZUnJdAY", title: "Dominant & Recessive Traits and Punnett Squares", channel: "Amoeba Sisters", duration: "9 min" },
 

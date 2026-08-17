@@ -281,16 +281,27 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
         {/* Main lesson area */}
         <div className="space-y-6">
           {/* Video / media area */}
-          <div className="relative aspect-video overflow-hidden rounded-2xl border bg-black shadow-lg">
-            {isPlaying ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${videoInfo.youtubeId}?autoplay=1&rel=0`}
-                title={videoInfo.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="h-full w-full border-0"
-              />
-            ) : (
+          <div className="space-y-2">
+            <div className="relative aspect-video overflow-hidden rounded-2xl border bg-black shadow-lg">
+              {isPlaying ? (
+                <div className="relative h-full w-full">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoInfo.youtubeId}?autoplay=1&rel=0`}
+                    title={videoInfo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="h-full w-full border-0"
+                  />
+                  <a
+                    href={`https://www.youtube.com/watch?v=${videoInfo.youtubeId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white shadow-md backdrop-blur transition-all hover:bg-black/90 hover:scale-105"
+                  >
+                    Watch on YouTube <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              ) : (
               <div className="relative h-full w-full">
                 <Image
                   src={`https://i.ytimg.com/vi/${videoInfo.youtubeId}/hqdefault.jpg`}
@@ -335,6 +346,7 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
                 </a>
               </div>
             )}
+          </div>
           </div>
 
           {/* Title + actions */}
