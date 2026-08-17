@@ -17,13 +17,13 @@ An AI-powered digital learning ecosystem developed by **Team Code Zen** for the 
 
 ## 🎥 Platform Demo Video
 
-> 🎬 **Watch the comprehensive platform demonstration, AI tutor walkthrough, and feature presentation:**
+> 🎬 **Platform Walkthrough & Feature Demonstration**
 
-[![Smart Digital Learning Platform - Demo Video](https://img.shields.org/badge/Watch%20Demo%20Video-YouTube-red?style=for-the-badge&logo=youtube)](#-platform-demo-video)
+[![Watch Demo Video](https://img.shields.org/badge/Watch%20Demo%20Video-Play-blue?style=for-the-badge)](#-platform-demo-video)
 
-> 📺 **Video Link**: [Click here to watch the Project Demo Video](https://www.youtube.com/watch?v=YOUR_DEMO_VIDEO_ID)
+> 📺 **Demo Video Link**: [Click here to watch the Platform Demo Video](YOUR_DEMO_VIDEO_LINK_HERE)
 > 
-> *Replace `YOUR_DEMO_VIDEO_ID` with your YouTube video link or embed key.*
+> *(Paste your demo video URL above — supports Google Drive, Loom, Vimeo, GitHub video attachments, direct MP4 links, or any video platform).*
 
 ---
 
