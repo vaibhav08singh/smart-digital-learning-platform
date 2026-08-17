@@ -93,6 +93,7 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
   const [showTranscript, setShowTranscript] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [embedError, setEmbedError] = useState(false);
   const [prevLessonId, setPrevLessonId] = useState(resolvedLessonId);
 
   // Resources Modals state
@@ -104,6 +105,7 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
   if (prevLessonId !== resolvedLessonId) {
     setPrevLessonId(resolvedLessonId);
     setIsPlaying(false);
+    setEmbedError(false);
   }
 
   const videoInfo = useMemo(
@@ -284,23 +286,56 @@ export function LearningInterface({ topicId, lessonId }: { topicId: string; less
           <div className="space-y-2">
             <div className="relative aspect-video overflow-hidden rounded-2xl border bg-black shadow-lg">
               {isPlaying ? (
-                <div className="relative h-full w-full">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${videoInfo.youtubeId}?autoplay=1&rel=0`}
-                    title={videoInfo.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="h-full w-full border-0"
-                  />
-                  <a
-                    href={`https://www.youtube.com/watch?v=${videoInfo.youtubeId}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white shadow-md backdrop-blur transition-all hover:bg-black/90 hover:scale-105"
-                  >
-                    Watch on YouTube <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
+                embedError ? (
+                  <div className="relative flex h-full w-full flex-col items-center justify-center gap-3.5 bg-slate-950 p-6 text-center text-white">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 text-primary shadow-inner">
+                      <Video className="h-7 w-7" />
+                    </div>
+                    <div className="max-w-md space-y-1">
+                      <p className="text-base font-bold text-white">{videoInfo.title}</p>
+                      <p className="text-xs text-white/70">
+                        {videoInfo.channel} · Direct iframe embedding restricted by YouTube.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 pt-1">
+                      <a
+                        href={`https://www.youtube.com/watch?v=${videoInfo.youtubeId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow transition-transform hover:scale-105 hover:bg-primary/90"
+                      >
+                        Watch on YouTube <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs text-white border-white/20 hover:bg-white/10"
+                        onClick={() => setEmbedError(false)}
+                      >
+                        Retry Embed
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative h-full w-full">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${videoInfo.youtubeId}?autoplay=1&rel=0`}
+                      title={videoInfo.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      onError={() => setEmbedError(true)}
+                      className="h-full w-full border-0"
+                    />
+                    <a
+                      href={`https://www.youtube.com/watch?v=${videoInfo.youtubeId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white shadow-md backdrop-blur transition-all hover:bg-black/90 hover:scale-105"
+                    >
+                      Watch on YouTube <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                )
               ) : (
               <div className="relative h-full w-full">
                 <Image
