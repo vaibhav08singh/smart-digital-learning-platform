@@ -247,7 +247,7 @@ function generateFallbackYoutubeVideos(query: string): YouTubeVideo[] {
       keywords: ["light", "reflection", "shadow", "science", "plant", "season"],
       videos: [
         { id: "sd0BOnN6aNY", title: "Light Reflection and Refraction Basics", channel: "Khan Academy", duration: "10 min", note: "Specular vs diffuse reflection and light rays" },
-        { id: "sd0BOnN6aNY", title: "Light & Shadow Optics: Formation, Reflection & Materials", channel: "Khan Academy", duration: "8 min", note: "Opaque objects, light sources, propagation and shadow angles" },
+        { id: "CoAPMSV3ghs", title: "Formation of Shadows | English", channel: "IISER Pune Science Activity Centre", duration: "8 min", note: "Formation of shadows, transparent, opaque, translucent materials, shadow size, umbra and penumbra" },
         { id: "X6TLFZUC9gI", title: "Parts of a Plant and Their Functions", channel: "Peekaboo Kids", duration: "6 min", note: "Roots, stems, leaves, flowers, and photosynthesis" },
       ],
     },
