@@ -217,7 +217,7 @@ function generateFallbackYoutubeVideos(query: string): YouTubeVideo[] {
     {
       keywords: ["operating system", "os", "scheduling", "cpu"],
       videos: [
-        { id: "eYTu3q3tH0w", title: "CPU Scheduling Algorithms in Operating Systems", channel: "Gate Smashers", duration: "15 min", note: "FCFS, SJF, Priority, and Round Robin scheduling" },
+        { id: "MZdVAVMgNpA", title: "FCFS, SJF and Round Robin Scheduling", channel: "Gate Smashers", duration: "18 min", note: "FCFS, SJF, Priority, and Round Robin scheduling" },
         { id: "vBURTt97EkA", title: "Operating System Full Course", channel: "Neso Academy", duration: "10h 30m", note: "Processes, threads, memory, deadlocks, and IPC" },
       ],
     },

@@ -198,8 +198,8 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-py-basics-l1": { id: "v-py-l1", youtubeId: "rfscVS0vtbw", title: "Python Variables, Functions & Syntax", channel: "Programming with Mosh", duration: "30 min" },
 
   // --- Operating Systems & Networks ---
-  "tp-scheduling": { id: "v-scheduling-main", youtubeId: "eYTu3q3tH0w", title: "CPU Scheduling Algorithms in Operating Systems", channel: "Gate Smashers", duration: "15 min" },
-  "tp-scheduling-l1": { id: "v-scheduling-l1", youtubeId: "eYTu3q3tH0w", title: "FCFS, SJF and Round Robin Scheduling", channel: "Gate Smashers", duration: "15 min" },
+  "tp-scheduling": { id: "v-scheduling-main", youtubeId: "MZdVAVMgNpA", title: "FCFS, SJF and Round Robin Scheduling", channel: "Gate Smashers", duration: "18 min" },
+  "tp-scheduling-l1": { id: "v-scheduling-l1", youtubeId: "MZdVAVMgNpA", title: "FCFS, SJF and Round Robin Scheduling", channel: "Gate Smashers", duration: "18 min" },
   "tp-tcp": { id: "v-tcp-main", youtubeId: "PpsEaqJV_A0", title: "TCP/IP Networking Protocol Essentials", channel: "NetworkChuck", duration: "22 min" },
   "tp-tcp-l1": { id: "v-tcp-l1", youtubeId: "PpsEaqJV_A0", title: "TCP 3-Way Handshake & Reliable Transport", channel: "NetworkChuck", duration: "22 min" },
   "tp-sql-query": { id: "v-sql-main", youtubeId: "HXV3zeQKqGY", title: "SQL Tutorial - Full Database Course", channel: "freeCodeCamp.org", duration: "4h 20m" },
