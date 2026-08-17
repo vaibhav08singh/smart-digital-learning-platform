@@ -402,7 +402,7 @@ Student Ask Doubt / Code Assistance
 ## 📂 Project Structure
 
 ```
-Smart-Digital-Learning-Platform/
+smart-digital-learning-platform/
 ├── README.md
 ├── package.json
 ├── package-lock.json
@@ -498,8 +498,8 @@ Smart-Digital-Learning-Platform/
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/vaibhav08singh/-Smart-Digital-Learning-Platform.git
-cd -Smart-Digital-Learning-Platform
+git clone https://github.com/vaibhav08singh/smart-digital-learning-platform.git
+cd smart-digital-learning-platform
 ```
 
 ### 2️⃣ Install Dependencies
