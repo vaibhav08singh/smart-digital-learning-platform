@@ -186,7 +186,7 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
 
   "tp-graphs": { id: "v-graphs-main", youtubeId: "tWVWeAqZ0WU", title: "Graph Algorithms for Technical Interviews", channel: "freeCodeCamp.org", duration: "2h 15m" },
   "tp-graphs-l1": { id: "v-graphs-l1", youtubeId: "gTsoyORhqkg", title: "Graph Representations (Matrix vs List)", channel: "GeeksforGeeks", duration: "18 min" },
-  "tp-graphs-l2": { id: "v-graphs-l2", youtubeId: "pcKY4hjNq60", title: "Breadth-First Search (BFS) Traversal", channel: "Abdul Bari", duration: "20 min" },
+  "tp-graphs-l2": { id: "v-graphs-l2", youtubeId: "kyUpc_5705s", title: "BFS DFS - Simplified", channel: "Abdul Bari", duration: "20 min" },
 
   "tp-dp": { id: "v-dp-main", youtubeId: "oBt53YbR9Kk", title: "Dynamic Programming - Learn to Solve Algorithmic Problems", channel: "freeCodeCamp.org", duration: "5h 10m" },
   "tp-dp-l1": { id: "v-dp-l1", youtubeId: "oBt53YbR9Kk", title: "Recursion Review & Overlapping Subproblems", channel: "freeCodeCamp.org", duration: "18 min" },
