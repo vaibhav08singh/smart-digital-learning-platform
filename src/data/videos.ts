@@ -214,8 +214,9 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-docker-l2": { id: "v-docker-l2", youtubeId: "X48VuDVv0do", title: "Docker Compose & Container Networking", channel: "TechWorld with Nana", duration: "25 min" },
   "tp-crypto": { id: "v-sec-crypto", youtubeId: "O4xNJsjtN6E", title: "AES Encryption Explained", channel: "Computerphile", duration: "14 min" },
   "tp-crypto-l1": { id: "v-crypto-l1", youtubeId: "O4xNJsjtN6E", title: "Symmetric vs Asymmetric Encryption", channel: "Computerphile", duration: "14 min" },
-  "tp-design-scaling": { id: "v-sysdesign", youtubeId: "m8Icp_CidTO", title: "System Design Course for Beginners", channel: "ByteByteGo", duration: "1h 10m" },
-  "tp-design-scaling-l1": { id: "v-sysdesign-l1", youtubeId: "m8Icp_CidTO", title: "Load Balancing, Caching & Scalability", channel: "ByteByteGo", duration: "30 min" },
+  "tp-design-scaling": { id: "v-sysdesign", youtubeId: "dGAgxozNWFE", title: "Cache Systems Every Developer Should Know", channel: "ByteByteGo", duration: "26 min" },
+  "tp-design-scaling-l1": { id: "v-sysdesign-l1", youtubeId: "m8Icp_CidTO", title: "Load Balancers & System Scalability", channel: "ByteByteGo", duration: "24 min" },
+  "tp-design-scaling-l2": { id: "v-sysdesign-l2", youtubeId: "dGAgxozNWFE", title: "Cache Systems Every Developer Should Know", channel: "ByteByteGo", duration: "26 min" },
 
   // --- AI & Machine Learning ---
   "tp-nn-arch": { id: "v-nn-main", youtubeId: "aircAruvnKk", title: "But what is a neural network?", channel: "3Blue1Brown", duration: "18 min" },
