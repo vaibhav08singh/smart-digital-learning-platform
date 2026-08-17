@@ -240,7 +240,7 @@ function generateFallbackYoutubeVideos(query: string): YouTubeVideo[] {
       videos: [
         { id: "aircAruvnKk", title: "But what is a neural network?", channel: "3Blue1Brown", duration: "18 min", note: "Visual intuition for deep learning & backpropagation" },
         { id: "efR1C6CvhmE", title: "StatQuest: Support Vector Machines", channel: "StatQuest", duration: "20 min", note: "Max-margin classifiers and kernel trick" },
-        { id: "eMlx5aiWiMJ", title: "Transformer Neural Networks & Self-Attention", channel: "StatQuest", duration: "16 min", note: "How self-attention and transformers operate" },
+        { id: "PSs6nxngL6k", title: "Attention for Neural Networks, Clearly Explained!!!", channel: "StatQuest with Josh Starmer", duration: "34 min", note: "How attention mechanism works in neural networks" },
       ],
     },
     {
