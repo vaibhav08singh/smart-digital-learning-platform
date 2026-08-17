@@ -215,7 +215,7 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-crypto": { id: "v-sec-crypto", youtubeId: "O4xNJsjtN6E", title: "AES Encryption Explained", channel: "Computerphile", duration: "14 min" },
   "tp-crypto-l1": { id: "v-crypto-l1", youtubeId: "O4xNJsjtN6E", title: "Symmetric vs Asymmetric Encryption", channel: "Computerphile", duration: "14 min" },
   "tp-design-scaling": { id: "v-sysdesign", youtubeId: "dGAgxozNWFE", title: "Cache Systems Every Developer Should Know", channel: "ByteByteGo", duration: "26 min" },
-  "tp-design-scaling-l1": { id: "v-sysdesign-l1", youtubeId: "m8Icp_CidTO", title: "Load Balancers & System Scalability", channel: "ByteByteGo", duration: "24 min" },
+  "tp-design-scaling-l1": { id: "v-sysdesign-l1", youtubeId: "LQuuoHTyYz8", title: "What is a LOAD BALANCER really about?", channel: "ByteByteGo", duration: "24 min" },
   "tp-design-scaling-l2": { id: "v-sysdesign-l2", youtubeId: "dGAgxozNWFE", title: "Cache Systems Every Developer Should Know", channel: "ByteByteGo", duration: "26 min" },
 
   // --- AI & Machine Learning ---
