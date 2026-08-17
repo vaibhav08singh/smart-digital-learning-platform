@@ -294,7 +294,7 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-porters-l1": { id: "v-porters-l1", youtubeId: "mYF2_FBCvXw", title: "Industry Structure & Competitive Forces", channel: "Harvard Business Review", duration: "8 min" },
   "tp-lit-review": { id: "v-res-lit", youtubeId: "kG_9kE1yD4o", title: "How To Search For Research Papers | LITERATURE REVIEW MADE EASY", channel: "Dr. Amina Yonis", duration: "20 min" },
   "tp-lit-review-l1": { id: "v-lit-l1", youtubeId: "kG_9kE1yD4o", title: "How To Search For Research Papers | LITERATURE REVIEW MADE EASY", channel: "Dr. Amina Yonis", duration: "20 min" },
-  "tp-lit-review-l2": { id: "v-lit-l2", youtubeId: "r-72t0p7r0M", title: "Synthesizing Academic Literature", channel: "Paperpal", duration: "24 min" },
+  "tp-lit-review-l2": { id: "v-lit-l2", youtubeId: "FNz_sOAnLaA", title: "Ch-2: How to Synthesize Literature?", channel: "Solomon Getachew", duration: "24 min" },
   "tp-writing": { id: "v-res-writing", youtubeId: "kS2O5c3R4rY", title: "Academic Writing Principles & Rigor", channel: "Harvard Writing Center", duration: "15 min" },
   "tp-writing-l1": { id: "v-writing-l1", youtubeId: "kS2O5c3R4rY", title: "Structuring Thesis & Argumentation", channel: "Harvard Writing Center", duration: "15 min" },
   "tp-opamp": { id: "v-ee-opamp", youtubeId: "EOZyofNXWXc", title: "Inverting and Non-inverting Amplifiers - Op-amps | Basic Circuits #13", channel: "CircuitBread", duration: "20 min" },
