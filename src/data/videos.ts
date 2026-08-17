@@ -200,6 +200,7 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   // --- Operating Systems & Networks ---
   "tp-scheduling": { id: "v-scheduling-main", youtubeId: "MZdVAVMgNpA", title: "FCFS, SJF and Round Robin Scheduling", channel: "Gate Smashers", duration: "18 min" },
   "tp-scheduling-l1": { id: "v-scheduling-l1", youtubeId: "MZdVAVMgNpA", title: "FCFS, SJF and Round Robin Scheduling", channel: "Gate Smashers", duration: "18 min" },
+  "tp-scheduling-l2": { id: "v-scheduling-l2", youtubeId: "MZdVAVMgNpA", title: "FCFS, SJF and Round Robin Scheduling", channel: "Gate Smashers", duration: "18 min" },
   "tp-tcp": { id: "v-tcp-main", youtubeId: "PpsEaqJV_A0", title: "TCP/IP Networking Protocol Essentials", channel: "NetworkChuck", duration: "22 min" },
   "tp-tcp-l1": { id: "v-tcp-l1", youtubeId: "PpsEaqJV_A0", title: "TCP 3-Way Handshake & Reliable Transport", channel: "NetworkChuck", duration: "22 min" },
   "tp-sql-query": { id: "v-sql-main", youtubeId: "HXV3zeQKqGY", title: "SQL Tutorial - Full Database Course", channel: "freeCodeCamp.org", duration: "4h 20m" },
@@ -220,8 +221,8 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
 
   // --- AI & Machine Learning ---
   "tp-nn-arch": { id: "v-nn-main", youtubeId: "aircAruvnKk", title: "But what is a neural network?", channel: "3Blue1Brown", duration: "18 min" },
-  "tp-nn-arch-l1": { id: "v-nn-l1", youtubeId: "aircAruvnKk", title: "Neural Network Architecture & Forward Pass", channel: "3Blue1Brown", duration: "18 min" },
-  "tp-nn-arch-l2": { id: "v-nn-l2", youtubeId: "Ilg3gGewQ5U", title: "Gradient Descent & Backpropagation", channel: "3Blue1Brown", duration: "21 min" },
+  "tp-nn-arch-l1": { id: "v-nn-l1", youtubeId: "IHZwWFHWa-w", title: "Gradient descent, how neural networks learn | Chapter 2, Deep learning", channel: "3Blue1Brown", duration: "26 min" },
+  "tp-nn-arch-l2": { id: "v-nn-l2", youtubeId: "Ilg3gGewQ5U", title: "What is backpropagation really doing? | Chapter 3, Deep learning", channel: "3Blue1Brown", duration: "28 min" },
   "tp-nn-arch-l3": { id: "v-nn-l3", youtubeId: "PSs6nxngL6k", title: "Attention for Neural Networks, Clearly Explained!!!", channel: "StatQuest with Josh Starmer", duration: "34 min" },
   "tp-research": { id: "v-research-main", youtubeId: "zjkBMFhNj_g", title: "State of Deep Learning & AI Research", channel: "Lex Fridman", duration: "45 min" },
   "tp-research-l1": { id: "v-res-l1", youtubeId: "zjkBMFhNj_g", title: "Modern AI & Deep Learning Architectures", channel: "Lex Fridman", duration: "45 min" },
@@ -267,8 +268,10 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-emi-l4": { id: "v-emi-l4", youtubeId: "yU--8Zk57-Y", title: "AC Generators & Eddy Currents", channel: "Khan Academy", duration: "15 min" },
   "tp-ac": { id: "v-ac-main", youtubeId: "hLRk0t6m8a8", title: "ALTERNATING CURRENT - AC in One Shot - All Concepts & PYQs", channel: "Competition Wallah", duration: "18 min" },
   "tp-ac-l1": { id: "v-ac-l1", youtubeId: "hLRk0t6m8a8", title: "ALTERNATING CURRENT - AC in One Shot - All Concepts & PYQs", channel: "Competition Wallah", duration: "18 min" },
+  "tp-ac-l2": { id: "v-ac-l2", youtubeId: "hLRk0t6m8a8", title: "ALTERNATING CURRENT - AC in One Shot - All Concepts & PYQs", channel: "Competition Wallah", duration: "18 min" },
   "tp-photo": { id: "v-photo-main", youtubeId: "HCCm0lFwqNw", title: "The photoelectric and photovoltaic effects | Physics | Khan Academy", channel: "Khan Academy", duration: "16 min" },
   "tp-photo-l1": { id: "v-photo-l1", youtubeId: "HCCm0lFwqNw", title: "The photoelectric and photovoltaic effects | Physics | Khan Academy", channel: "Khan Academy", duration: "16 min" },
+  "tp-photo-l2": { id: "v-photo-l2", youtubeId: "HCCm0lFwqNw", title: "The photoelectric and photovoltaic effects | Physics | Khan Academy", channel: "Khan Academy", duration: "16 min" },
   "tp-alkanes": { id: "v-alkanes-main", youtubeId: "NRFPvLp3r3g", title: "Naming simple alkanes | Organic chemistry | Khan Academy", channel: "Khan Academy", duration: "9 min" },
   "tp-alkanes-l1": { id: "v-alkanes-l1", youtubeId: "NRFPvLp3r3g", title: "Naming simple alkanes | Organic chemistry | Khan Academy", channel: "Khan Academy", duration: "9 min" },
   "tp-mendel": { id: "v-mendel-main", youtubeId: "NWqgZUnJdAY", title: "Mendelian Genetics and Punnett Squares", channel: "Amoeba Sisters", duration: "9 min" },
