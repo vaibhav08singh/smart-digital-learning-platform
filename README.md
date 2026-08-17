@@ -11,6 +11,19 @@ An AI-powered digital learning ecosystem developed by **Team Code Zen** for the 
 | 👥 Team Name | **Code Zen** |
 | 🚀 Project Name | **Smart Digital Learning Platform** |
 | 🌐 Live Website | [https://smart-digital-learning-platform.vercel.app/](https://smart-digital-learning-platform.vercel.app/) |
+| 🎥 Demo Video | [Watch Platform Demo Video](#-platform-demo-video) |
+
+---
+
+## 🎥 Platform Demo Video
+
+> 🎬 **Watch the comprehensive platform demonstration, AI tutor walkthrough, and feature presentation:**
+
+[![Smart Digital Learning Platform - Demo Video](https://img.shields.org/badge/Watch%20Demo%20Video-YouTube-red?style=for-the-badge&logo=youtube)](#-platform-demo-video)
+
+> 📺 **Video Link**: [Click here to watch the Project Demo Video](https://www.youtube.com/watch?v=YOUR_DEMO_VIDEO_ID)
+> 
+> *Replace `YOUR_DEMO_VIDEO_ID` with your YouTube video link or embed key.*
 
 ---
 
