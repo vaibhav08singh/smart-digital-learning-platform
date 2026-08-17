@@ -296,8 +296,8 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-lit-review-l1": { id: "v-lit-l1", youtubeId: "r-72t0p7r0M", title: "Synthesizing Academic Literature", channel: "Paperpal", duration: "12 min" },
   "tp-writing": { id: "v-res-writing", youtubeId: "kS2O5c3R4rY", title: "Academic Writing Principles & Rigor", channel: "Harvard Writing Center", duration: "15 min" },
   "tp-writing-l1": { id: "v-writing-l1", youtubeId: "kS2O5c3R4rY", title: "Structuring Thesis & Argumentation", channel: "Harvard Writing Center", duration: "15 min" },
-  "tp-opamp": { id: "v-ee-opamp", youtubeId: "7FYHgSJ5rVE", title: "Operational Amplifiers (Op-Amps) Explained", channel: "Engineering Mindset", duration: "14 min" },
-  "tp-opamp-l1": { id: "v-opamp-l1", youtubeId: "7FYHgSJ5rVE", title: "Inverting & Non-Inverting Op-Amp Circuits", channel: "Engineering Mindset", duration: "14 min" },
+  "tp-opamp": { id: "v-ee-opamp", youtubeId: "EOZyofNXWXc", title: "Inverting and Non-inverting Amplifiers - Op-amps | Basic Circuits #13", channel: "CircuitBread", duration: "20 min" },
+  "tp-opamp-l1": { id: "v-opamp-l1", youtubeId: "EOZyofNXWXc", title: "Inverting and Non-inverting Amplifiers - Op-amps | Basic Circuits #13", channel: "CircuitBread", duration: "20 min" },
   "tp-fourier": { id: "v-ee-fourier", youtubeId: "spUNpyF58BY", title: "But what is the Fourier Transform?", channel: "3Blue1Brown", duration: "21 min" },
   "tp-fourier-l1": { id: "v-fourier-l1", youtubeId: "spUNpyF58BY", title: "Frequency Decomposition & Continuous Spectrum", channel: "3Blue1Brown", duration: "21 min" },
 };
