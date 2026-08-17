@@ -10,6 +10,7 @@ An AI-powered digital learning ecosystem developed by **Team Code Zen** for the 
 |---|---|
 | 👥 Team Name | **Code Zen** |
 | 🚀 Project Name | **Smart Digital Learning Platform** |
+| 🌐 Live Website | [https://smart-digital-learning-platform.vercel.app/](https://smart-digital-learning-platform.vercel.app/) |
 
 ---
 
@@ -509,12 +510,14 @@ EXECUTE_API_URL=https://emkc.org/api/v2/piston
 EXECUTE_API_KEY=
 ```
 
-### 4️⃣ Run the Development Server
+### 4️⃣ Access the Application
+
+- **Live Production Platform**: [https://smart-digital-learning-platform.vercel.app/](https://smart-digital-learning-platform.vercel.app/)
+
+To run locally:
 ```bash
 npm run dev
 ```
-
-Open [http://localhost:3001](http://localhost:3001) in your browser.
 
 ---
 
@@ -522,7 +525,7 @@ Open [http://localhost:3001](http://localhost:3001) in your browser.
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Starts the Next.js development server on `http://localhost:3001` |
+| `npm run dev` | Starts the Next.js development server locally |
 | `npm run build` | Compiles and builds the production bundle |
 | `npm start` | Starts the Next.js production server |
 | `npm run lint` | Runs ESLint checks across all codebase files |
