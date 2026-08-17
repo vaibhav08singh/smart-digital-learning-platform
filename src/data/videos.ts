@@ -231,8 +231,9 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-self-attn-l1": { id: "v-attn-l1", youtubeId: "PSs6nxngL6k", title: "Attention for Neural Networks, Clearly Explained!!!", channel: "StatQuest with Josh Starmer", duration: "34 min" },
   "tp-cnn": { id: "v-cnn-main", youtubeId: "YRhxdVk_sIs", title: "Convolutional Neural Networks (CNNs)", channel: "StatQuest", duration: "22 min" },
   "tp-cnn-l1": { id: "v-cnn-l1", youtubeId: "YRhxdVk_sIs", title: "CNN Convolutions, Kernels & Pooling", channel: "StatQuest", duration: "22 min" },
-  "tp-hypothesis": { id: "v-hypo-main", youtubeId: "0oc49g9v5lk", title: "Hypothesis Testing and P-values Explained", channel: "StatQuest", duration: "14 min" },
-  "tp-hypothesis-l1": { id: "v-hypo-l1", youtubeId: "0oc49g9v5lk", title: "Null Hypothesis, P-Values & Significance", channel: "StatQuest", duration: "14 min" },
+  "tp-hypothesis": { id: "v-hypo-main", youtubeId: "nnBJeb_I-q8", title: "StatQuickie: Which t test to use", channel: "StatQuest with Josh Starmer", duration: "24 min" },
+  "tp-hypothesis-l1": { id: "v-hypo-l1", youtubeId: "0oc49g9v5lk", title: "Null Hypothesis, P-Values & Significance", channel: "StatQuest with Josh Starmer", duration: "22 min" },
+  "tp-hypothesis-l2": { id: "v-hypo-l2", youtubeId: "nnBJeb_I-q8", title: "StatQuickie: Which t test to use", channel: "StatQuest with Josh Starmer", duration: "24 min" },
 
   // --- Mathematics & Science (Class 1 to 12) ---
   "tp-sci-light": { id: "v-sci-light", youtubeId: "sd0BOnN6aNY", title: "Light Reflection and Refraction Basics", channel: "Khan Academy", duration: "10 min" },
