@@ -232,7 +232,7 @@ const topicLessonVideoMap: Record<string, CourseVideo> = {
   "tp-cnn": { id: "v-cnn-main", youtubeId: "YRhxdVk_sIs", title: "Convolutional Neural Networks (CNNs)", channel: "StatQuest", duration: "22 min" },
   "tp-cnn-l1": { id: "v-cnn-l1", youtubeId: "YRhxdVk_sIs", title: "CNN Convolutions, Kernels & Pooling", channel: "StatQuest", duration: "22 min" },
   "tp-hypothesis": { id: "v-hypo-main", youtubeId: "nnBJeb_I-q8", title: "StatQuickie: Which t test to use", channel: "StatQuest with Josh Starmer", duration: "24 min" },
-  "tp-hypothesis-l1": { id: "v-hypo-l1", youtubeId: "0oc49g9v5lk", title: "Null Hypothesis, P-Values & Significance", channel: "StatQuest with Josh Starmer", duration: "22 min" },
+  "tp-hypothesis-l1": { id: "v-hypo-l1", youtubeId: "z0Ry_3_qhDw", title: "Introduction to sampling distributions", channel: "Khan Academy", duration: "22 min" },
   "tp-hypothesis-l2": { id: "v-hypo-l2", youtubeId: "nnBJeb_I-q8", title: "StatQuickie: Which t test to use", channel: "StatQuest with Josh Starmer", duration: "24 min" },
 
   // --- Mathematics & Science (Class 1 to 12) ---
